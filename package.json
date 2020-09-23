@@ -1,0 +1,16 @@
+{
+  "name": "zhiying2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "echarts": "^4.8.0",
+    "echarts-wordcloud": "^1.1.3"
+  }
+}

@@ -1,0 +1,38 @@
+.main-capsule{
+	border: 1upx solid #cc0000;
+	border-radius: 10upx;
+	overflow: hidden;
+	line-height: 50upx;
+}
+.main-capsule .main-capsule-item{
+	border-right: 1upx solid #cc0000;
+	padding: 0 30upx;
+	color: #cc0000;
+}
+.main-capsule .main-capsule-item:last-child{
+	border: none;
+}
+.main-capsule .main-capsule-item.cur{
+	background: #cc0000;
+	color: #fff;
+}
+.bg-red {
+	background-color: #cc0000;
+	color: #ffffff;
+}
+.bg-white{
+	background-color: #fff;
+	color: #333;
+}
+.text-blue,
+.line-blue,
+.lines-blue {
+	color: #0060BE;
+}
+.bg-blue{
+	background-color: #0060BE;
+}
+
+.cu-load.over::before {
+	content: "";
+}
