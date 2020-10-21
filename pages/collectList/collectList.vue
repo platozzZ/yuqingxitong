@@ -44,8 +44,8 @@
 				
 			</view>
 		</view>
-		
-		<view class="cu-load" :class="!isLoad?'loading':'over'"></view>
+		<uni-load-more :status="status"></uni-load-more>
+		<!-- <view class="cu-load" :class="!isLoad?'loading':'over'"></view> -->
 	</view>
 </template>
 
@@ -63,8 +63,9 @@
 				list: [],
 				searchData: '',
 				userId: '',
-				pageNum: 0,
-				isLoad: false,
+				pageNum: 1,
+				totalPage: 0,
+				status: 'more'
 				// showContainer: false
 			}
 		},
@@ -81,26 +82,26 @@
 			that.getBookList(data)
 		},
 		onReachBottom(){
-			if(that.pageNum == that.totalPage){
-				that.isLoad = true
+			if(that.totalPage >= that.pageNum){
+				that.status = 'loading'
+				let data
+				if(!that.searchData){
+					data = {
+						UserID: that.userId,
+						PageNum: that.pageNum,
+					}
+				} else {
+					data = {
+						UserID: that.userId,
+						PageNum: that.pageNum,
+						Title: that.searchData
+					}
+				}
+				that.getBookList(data)
 				return
 			}
-			that.pageNum++;
-			console.log(that.pageNum);
-			let data
-			if(!that.searchData){
-				data = {
-					UserID: that.userId,
-					PageNum: that.pageNum,
-				}
-			} else {
-				data = {
-					UserID: that.userId,
-					PageNum: that.pageNum,
-					Title: that.searchData
-				}
-			}
-			that.getBookList(data)
+			that.status = 'noMore'
+			
 		},
 		methods: {
 			tabSelect(e) {
@@ -126,24 +127,41 @@
 					console.log('getBookList',res)
 					if(res.data.successCode == '1'){
 						let datas = res.data.data
-						if(datas.length == 0){
-							// that.showContainer = false
-							that.infoList = []
-							that.isLoad = true
-							that.showToast('无更多数据')
-							return
-						}
-						// that.infoList = datas
+						
 						that.totalPage = res.data.pagecount
 						// console.log(that.totalPage);
+						// let datas = res.data.data
 						// datas.map((item,index) => {
 						// 	item.date = utils.formatDates(new Date(item.MediaDate * 1000))
 						// })
-						if(that.pageNum == 0){
-							that.infoList = datas
+						if(data.pageNum == 1){
+							that.infoList = []
 							return
 						}
 						that.infoList = that.infoList.concat(datas)
+						that.pageNum++;
+						if(datas.length == 0 || data.pageNum == res.data.pagecount){
+							that.status = 'noMore';
+							return
+						}
+						that.status = 'more';
+						
+						
+						// if(datas.length == 0){
+						// 	// that.showContainer = false
+						// 	that.infoList = []
+						// 	that.status = 'noMore';
+						// 	that.showToast('无更多数据')
+						// 	return
+						// }
+						// // that.infoList = datas
+						// that.totalPage = res.data.pagecount
+						// if(that.pageNum == 0){
+						// 	that.infoList = datas
+						// 	return
+						// }
+						// that.infoList = that.infoList.concat(datas)
+						// that.status = 'more';
 					} else {
 						that.showToast(res.data.msg) 
 					}

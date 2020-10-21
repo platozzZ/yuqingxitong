@@ -1,13 +1,18 @@
 <template>
 	<view class="">
 		<view class="padding-top-sm">
-			<view class=" flex justify-center">
+			<!-- <view class=" flex justify-center">
 				<view class="main-capsule text-xs flex justify-center text-df">
 					<view class="main-capsule-item" :class="index==TabCur?' cur':''" v-for="(item,index) in tabList" :key="index" @tap="tabSelect" :data-id="index" :data-target="item.id">
 						{{item.name}}
 					</view>
 				</view>
-			</view>
+			</view> -->
+			
+			<u-dropdown :close-on-click-mask="mask" ref="uDropdown" :borderBottom="borderBottom" height="50" @open="openDropdown">
+				<u-dropdown-item @change="change" :value="dropOption[0][dropItemIndex[0]].value" :title="dropOption[0][dropItemIndex[0]].label" :options="dropOption[0]"></u-dropdown-item>
+				<u-dropdown-item @change="change" :value="dropOption[1][dropItemIndex[1]].value" :title="dropOption[1][dropItemIndex[1]].label" :options="dropOption[1]"></u-dropdown-item>
+			</u-dropdown>
 			<!-- <view class="tab-content" v-if="TabCur == 0"> -->
 				<view class="cu-card article">
 					<view class="cu-item shadow" style="margin-top: 20upx">
@@ -76,12 +81,57 @@
 				hondaValue: '',
 				option1: {},
 				option2: {},
+				mask: true,
+				dropOption: [
+					[
+						{
+							label: '本周',
+							value: 'ThisWeek',
+						},
+						{
+							label: '上周',
+							value: 'LastWeek',
+						},
+						{
+							label: '本月',
+							value: 'ThisMonth',
+						},
+						{
+							label: '上月',
+							value: 'LastMonth',
+						}
+					],
+					[
+						{
+							label: 'ALL',
+							value: 'ALL',
+						},
+						{
+							label: '正面',
+							value: 'PGC',
+						},
+						{
+							label: '负面',
+							value: 'UGC',
+						},
+						
+					],
+				],
+				borderBottom: false,
+				activeColor: '#fff',
+				inactiveColor: '#cc0000',
+				dropIndex: null,
+				dropItemIndex: [0,0]
 			}
 		},
 		mounted() {
 			that = this;
+			// let data = {
+			// 	Period: 'week'
+			// }
 			let data = {
-				Period: 'week'
+				Period: 'ThisWeek',
+				Para: 'ALL',
 			}
 			that.getEnterprise(data)
 		},
@@ -96,7 +146,31 @@
 				}
 				that.getEnterprise(data)
 			},
+			change(value,index) {
+				console.log(value);
+				console.log(index);
+				// that.dropItemIndex = that.dropItemIndex
+				that.$set(that.dropItemIndex,that.dropIndex,index)
+				console.log(that.dropItemIndex);
+				// let data
+				// if(that.dropIndex == 0){
+					
+				// }
+				let data = {
+					Period: that.dropOption[0][that.dropItemIndex[0]].value,
+					Para: that.dropOption[1][that.dropItemIndex[1]].value
+				}
+				that.getEnterprise(data)
+			},
+			closeDropdown() {
+				this.$refs.uDropdown.close();
+			},
+			openDropdown(index){
+				console.log(index);
+				that.dropIndex = index
+			},
 			getEnterprise(data){
+				console.log(data);
 				uni.showLoading()
 				getEnterprise(data).then(res => {
 					console.log('getEnterprise',res)
@@ -297,5 +371,13 @@
 		width: 100%;
 		height: 100%;
 		background-color: #FFFFFF;
+	}
+	/deep/ .u-dropdown__menu{
+		justify-content: center;
+	}
+	/deep/ .u-dropdown__menu__item{
+		flex-grow: 0;
+		flex-basis: auto;
+		padding: 0 30rpx;
 	}
 </style>

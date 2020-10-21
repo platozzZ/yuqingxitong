@@ -1,13 +1,19 @@
 <template>
 	<view class="">
 		<view class="padding-top-sm">
-			<view class=" flex justify-center">
+			<!-- <view class=" flex justify-center">
 				<view class="main-capsule text-xs flex justify-center text-df">
 					<view class="main-capsule-item" :class="index==TabCur?' cur':''" v-for="(item,index) in tabList" :key="index" @tap="tabSelect" :data-id="index" :data-target="item.id">
 						{{item.name}}
 					</view>
 				</view>
-			</view>
+			</view> -->
+			
+			<u-dropdown :close-on-click-mask="mask" ref="uDropdown" :borderBottom="borderBottom" height="50" @open="openDropdown">
+				<u-dropdown-item @change="change" :value="dropOption[0][dropItemIndex[0]].value" :title="dropOption[0][dropItemIndex[0]].label" :options="dropOption[0]"></u-dropdown-item>
+				<u-dropdown-item @change="change" :value="dropOption[1][dropItemIndex[1]].value" :title="dropOption[1][dropItemIndex[1]].label" :options="dropOption[1]"></u-dropdown-item>
+			</u-dropdown>
+			
 			<view class="cu-card">
 				<view class="cu-item shadow" v-for="(item,index) in wordData" :key="index">
 					<view class="padding-top-sm text-center text-xl text-red bg-white">
@@ -20,6 +26,7 @@
 							:data="option[index]"
 							:width="'100%'"
 							:height="'400rpx'"
+							v-if="isShowChart"
 						>
 						</word-cloud-chart>
 					</view>
@@ -54,22 +61,66 @@
 				textarea:'',
 				wordData: [],
 				option: [],
+				isShowChart: false,
+				mask: true,
+				dropOption: [
+					[
+						{
+							label: '本周',
+							value: 'ThisWeek',
+						},
+						{
+							label: '上周',
+							value: 'LastWeek',
+						},
+						{
+							label: '本月',
+							value: 'ThisMonth',
+						},
+						{
+							label: '上月',
+							value: 'LastMonth',
+						}
+					],
+					[
+						{
+							label: 'ALL',
+							value: 'ALL',
+						},
+						{
+							label: 'PGC',
+							value: 'PGC',
+						},
+						{
+							label: 'UGC',
+							value: 'UGC',
+						},
+						
+					],
+				],
+				borderBottom: false,
+				activeColor: '#fff',
+				inactiveColor: '#cc0000',
+				dropIndex: null,
+				dropItemIndex: [0,0]
 			}
 		},
 		mounted() {
 			that = this;
 			// ProjectName=WordCloudBad&Period=week
+			
+			// let data = {
+			// 	ProjectName: 'WordCloudGood',
+			// 	Period: 'week'
+			// }
 			let data = {
 				ProjectName: 'WordCloudGood',
-				Period: 'week'
+				Period: 'ThisWeek',
+				Para: 'ALL',
 			}
 			that.getWordCloud(data)
 			that.cWidth=uni.upx2px(750 - 60) + '';
 			that.cHeight=uni.upx2px(400) + '';
-			console.log(that.cWidth);
-			console.log(typeof(that.cWidth));
-			console.log(that.cHeight);
-			console.log(typeof(that.cHeight));
 		},
 		methods: {
 			tabSelect(e) {
@@ -84,25 +135,60 @@
 				}
 				that.getWordCloud(data)
 			},
+			change(value,index) {
+				console.log(value);
+				console.log(index);
+				// that.dropItemIndex = that.dropItemIndex
+				that.$set(that.dropItemIndex,that.dropIndex,index)
+				console.log(that.dropItemIndex);
+				// let data
+				// if(that.dropIndex == 0){
+					
+				// }
+				let data = {
+					ProjectName: 'WordCloudGood',
+					Period: that.dropOption[0][that.dropItemIndex[0]].value,
+					Para: that.dropOption[1][that.dropItemIndex[1]].value
+				}
+				that.getWordCloud(data)
+			},
+			closeDropdown() {
+				this.$refs.uDropdown.close();
+			},
+			openDropdown(index){
+				console.log(index);
+				that.dropIndex = index
+			},
 			getWordCloud(data){
+				that.isShowChart = false
 				uni.showLoading()
 				getWordCloud(data).then(res => {
 					uni.hideLoading()
+					that.isShowChart = true
 					console.log(data)
 					console.log('getWordCloud',res)
 					if(res.data.successCode == '1'){
 						that.wordData = res.data.data
-						res.data.data.map((item,index) => {
-							let wordlist = []
-							item.WordList.map((iteml,indexl) => {
-								wordlist.push({
-									name: iteml.keyword,
-									value: iteml.nums
+						console.log(res.data.data.length > 0);
+						if(res.data.data.length > 0){
+							let optionList = []
+							res.data.data.map((item,index) => {
+								let wordlist = []
+								item.WordList.map((iteml,indexl) => {
+									wordlist.push({
+										name: iteml.keyword,
+										value: iteml.nums
+									})
 								})
+								// that.option.push(wordlist)
+								optionList.push(wordlist)
 							})
-							that.option.push(wordlist)
-						})
-						console.log(that.option);
+							that.option = optionList
+							console.log(that.option);
+						} else {
+							that.showToast(res.data.msg) 
+							
+						}
 						// res.data.data.map((itemd,indexd) => {
 						// 	let Word = {series: []}
 						// 	itemd.WordList.map((item,index) => {
@@ -123,7 +209,7 @@
 				}).catch(err => {
 					uni.hideLoading()
 					console.log(err)
-					that.showToast(res.data.msg) 
+					that.showToast(err.text) 
 				})
 			},
 			// showWord(canvasId,chartData){
@@ -175,5 +261,14 @@
 		width: 100%;
 		height: 100%;
 		background-color: #FFFFFF;
+	}
+	
+	/deep/ .u-dropdown__menu{
+		justify-content: center;
+	}
+	/deep/ .u-dropdown__menu__item{
+		flex-grow: 0;
+		flex-basis: auto;
+		padding: 0 30rpx;
 	}
 </style>

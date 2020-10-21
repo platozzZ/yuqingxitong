@@ -113,25 +113,29 @@ export function getBookList(data){
 	})
 }
 
-// 获取合作媒体列表
+// 获取合作媒体列表 /ashx/Media/Media.ashx?type=GetsMediaFriend&sWhereSQL='2020-01','2020-02','2020-03'&IsH=1
+
 export function getMediaList(data){
 	return request.request({
-		url: '/ashx/Media/Media.ashx?type=GetMedia&ProjectName=MediaFriend',
+		url: '/ashx/Media/Media.ashx?type=GetsMediaFriend&IsH=1',
 		method: 'POST',
 		data: data
 	})
 }
 
-// 获取非合作媒体列表
+// 获取非合作媒体列表 /ashx/Media/Media.ashx?type=GetsMediaFriend&sWhereSQL='2020-01','2020-02','2020-03'&IsH=0
+
 export function getMediaNoList(data){
 	return request.request({
-		url: '/ashx/Media/Media.ashx?type=GetMedia&ProjectName=MediaNonFriend',
+		url: '/ashx/Media/Media.ashx?type=GetsMediaFriend&IsH=0',
 		method: 'POST',
 		data: data
 	})
 }
 
 // 获取企业数据 /ashx/Enterprise/Enterprise.ashx?type=GetEnterprise&ProjectName=Enterprise&Period=month
+// /ashx/Enterprise/Enterprise.ashx?type=GetEnterprise&ProjectName=Enterprise&Period=LastWeek&Para=PGC
+
 export function getEnterprise(data){
 	return request.request({
 		url: '/ashx/Enterprise/Enterprise.ashx?type=GetEnterprise&ProjectName=Enterprise',
@@ -152,20 +156,72 @@ export function searchArticle(e,n,v){
 
 //专题数据 /ashx/Special/Special.ashx?type=GetSpecial&ProjectName=TopicVolume
 // /ashx/Special/Special.ashx?type=GetSpecial&ProjectName=TopicTrend&EventName=专项-第四代飞度配置表泄露
+
+// /ashx/Special/Special.ashx?type=GetSpecialItemData&CurPage=1&PerNum=20&EventName=专项-第四代飞度配置表泄露         
+// /ashx/Special/Special.ashx?type=GetSpecialPlatform&EventName=专项-第四代飞度配置表泄露         
+// /ashx/Special/Special.ashx?type=GetSpecialVolumn&EventName=专项-第四代飞度配置表泄露         
+// /ashx/Special/Special.ashx?type=GetSpecialImportant&EventName=专项-第四代飞度配置表泄露         
+// /ashx/Special/Special.ashx?type=GetSpecialPath&EventName=专项-第四代飞度配置表泄露         
+
 export function getSpecial(data){
 	return request.request({
-		url: '/ashx/Special/Special.ashx?type=GetSpecial',
+		url: '/ashx/Special/Special.ashx',
+		method: 'POST',
+		data: data
+	})
+}
+// export function getSpecial(data){
+// 	return request.request({
+// 		url: '/ashx/Special/Special.ashx?type=GetSpecial',
+// 		method: 'POST',
+// 		data: data
+// 	})
+// }
+
+// /ashx/Special/Special.ashx?type=GetSpecialItemCount
+export function getSpecialCount(){
+	return request.request({
+		url: '/ashx/Special/Special.ashx?type=GetSpecialItemCount',
+		method: 'GET',
+		// data: data
+	})
+}
+// /ashx/Special/Special.ashx?type=GetSpecialItem&CurPage=1&PerNum=20         
+export function getSpecialList(data){
+	return request.request({
+		url: '/ashx/Special/Special.ashx?type=GetSpecialItem',
 		method: 'POST',
 		data: data
 	})
 }
 
-// 平台数据 /ashx/Plat/Plat.ashx?type=GetPlat&ProjectName=PlatForm&Proid=week
+
+
+// 平台数据 /ashx/Plat/Plat.ashx?type=GetPlat&ProjectName=PlatForm&Proid=week /ashx/Plat/Plat.ashx?type=GetPlat&ProjectName=PlatForm&Period=LastWeek&Para=PGC
+
 export function getPlat(data){
 	return request.request({
-		url: '/ashx/Plat/Plat.ashx?type=GetPlat&ProjectName=PlatForm&Proid=' + data,
-		method: 'GET',
-		// data: data
+		url: '/ashx/Plat/Plat.ashx?type=GetPlat&ProjectName=PlatForm',
+		method: 'POST',
+		data: data
+	})
+}
+
+// 媒体健康度  /ashx/Health/Health.ashx?type=GetHealthyMedia&period_var=ThisWeek&MediaType=ALL
+export function getHealthMedia(data){
+	return request.request({
+		url: '/ashx/Health/Health.ashx?type=GetHealthyMedia',
+		method: 'POST',
+		data: data
+	})
+}
+// 论坛健康度  /ashx/Health/Health.ashx?type=GetHealthyBBS&period_var=ThisWeek&MediaType=ALL
+
+export function getHealthBbs(data){
+	return request.request({
+		url: '/ashx/Health/Health.ashx?type=GetHealthyBBS',
+		method: 'POST',
+		data: data
 	})
 }
 

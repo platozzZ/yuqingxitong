@@ -3,7 +3,7 @@
 		<view class="cu-card article">
 			<view class="cu-item shadow">
 				<view class="title text-red text-center text-xl">
-					负面专题TOP5（累计声量）
+					负面专项
 				</view>
 				<view class="padding-lr flex flex-direction">
 					<view class="flex topitem" :class="[index == topCur?'active':'',index == 0?'margin-0':'margin-top-sm' ]" v-for="(item,index) in topList" :key="item.value + index" >
@@ -19,6 +19,9 @@
 						</view>
 					</view>
 				</view>
+				<view class="padding-sm">
+					<uni-pagination :current="current" :total="total" :show-icon="true" @change="change" />
+				</view>
 			</view>
 		</view>
 		<view class=" flex justify-center">
@@ -32,6 +35,7 @@
 		<special-important :importantData="importantData" :importantOption="importantOption" v-if="TabCur == 1"></special-important>
 		<special-platform :platData="platData" :platOption="platOption" v-if="TabCur == 2"></special-platform>
 		<special-tree :optionTree="optionTree" v-if="TabCur == 3"></special-tree>
+		<special-list :list="specialList" v-if="TabCur == 4"></special-list>
 	</view>
 </template>
 
@@ -39,7 +43,7 @@
 	let treeLength = 0
 	import echarts from "@/components/echarts/echarts.vue";
 	var that;
-	import { getSpecial } from '@/utils/api.js'
+	import {getSpecial, getSpecialList, getSpecialCount } from '@/utils/api.js'
 	import utils from '../../utils/util.js'
 	export default {
 		components: {
@@ -49,22 +53,25 @@
 			return {
 				tabList: [
 					{
-						id: "TopicTrend",
-						name: '声量趋势',
+						id: "GetSpecialVolumn",
+						name: '声量',
 					}, {
-						id: "TopicImportant",
-						name: '重点话题',
+						id: "GetSpecialImportant",
+						name: '话题',
 					}, {
-						id: "TopicPlatform",
-						name: '传播平台'
+						id: "GetSpecialPlatform",
+						name: '平台'
 					}, {
-						id: "TopicSpread",
-						name: '传播路径'
+						id: "GetSpecialPath",
+						name: '路径'
+					}, {
+						id: "GetSpecialItemData",
+						name: '数据'
 					}
 				],
 				topList: [],
 				topCurName: '',
-				projectName: 'TopicTrend',
+				projectName: 'GetSpecialVolumn',
 				eventName: '',
 				topCur: 0,
 				TabCur: 0,
@@ -75,19 +82,21 @@
 				trendOption: {},
 				importantOption: {},
 				platOption: [],
-				treeLen: 0
-				
+				treeLen: 0,
+				total: 10,
+				current: 1,
+				specialList: []
 				
 			}
 		},
 		mounted() {
 			that = this;
-			// that.getSpecial('TopicVolume')
-			// ProjectName=TopicTrend&EventName=专项-第四代飞度配置表泄露
 			let data = {
-				ProjectName: 'TopicTrend'
+				CurPage: 1,
+				PerNum: 10
 			}
-			that.getSpecial(data)
+			that.getSpecialList(data)
+			that.getSpecialCount()
 			// that.getSpecial(data,...(EventName: '))
 		},
 		methods: {
@@ -96,9 +105,19 @@
 				console.log(i)
 				that.projectName = e.id
 				that.TabCur = i
-				let val = {
-					ProjectName: e.id,
-					EventName: that.eventName
+				let val 
+				if(e.id == 'GetSpecialItemData'){
+					val = {
+						type: e.id,
+						EventName: that.eventName,
+						CurPage: 1,
+						PerNum: 20
+					}
+				} else {
+					val = {
+						type: e.id,
+						EventName: that.eventName
+					}
 				}
 				that.getSpecial(val)
 			},
@@ -107,61 +126,95 @@
 				console.log(i);
 				that.eventName = e.EventName
 				that.topCur = i
-				let val = {
-					ProjectName: that.projectName,
-					EventName: e.EventName
+				let val
+				if(that.TabCur == '4'){
+					val = {
+						type: that.projectName,
+						EventName: e.EventName,
+						CurPage: 1,
+						PerNum: 20
+					}
+				} else {
+					val = {
+						type: e.id,
+						EventName: that.eventName
+					}
 				}
+				// let val = {
+				// 	type: that.projectName,
+				// 	EventName: e.EventName
+				// }
 				that.getSpecial(val)
-				// let target = e.currentTarget.dataset
-				// let specialData = that.specialData
-				// specialData.map((item,index) => {
-				// 	if(e.EventName == item.type){
-						
-				// 	}
-				// })
 			},
-			getSpecial(data){
+			change(e) {
+				console.log(e)
+				// {type: "next", current: 2}
+				// {type: "prev", current: 1}
+				this.current = e.current
+				let data = {
+					CurPage: e.current,
+					PerNum: 10
+				}
+				that.getSpecialList(data)
+			},
+			getSpecialCount(){
+				getSpecialCount().then(res => {
+					console.log('getSpecialCount',res)
+					that.total = res.data.data
+				}).catch(err => {
+					uni.hideLoading()
+					console.log(err)
+					that.showToast(err.msg) 
+				})
+			},  
+			getSpecialList(data){
 				console.log(data);
 				uni.showLoading()
-				getSpecial(data).then(res => {
+				getSpecialList(data).then(res => {
 					uni.hideLoading()
-					console.log('getSpecial',res)
+					console.log('getSpecialList',res)
 					if(res.data.successCode == '1'){
-						if(!data.EventName){
-							that.topList = res.data.data
-							that.eventName = res.data.data[0].EventName
-							let val = {
-								ProjectName: 'TopicTrend',
-								EventName: res.data.data[0].EventName
+						// if(!data.EventName){
+							that.topList = res.data.data[0].list
+							that.eventName = res.data.data[0].list[0].EventName
+							console.log(res.data.data[0].list[0].EventName);
+							let formData = {
+								type: 'GetSpecialVolumn',
+								EventName: res.data.data[0].list[0].EventName
 							}
-							that.getSpecial(val)
-							return
-						}
-						if(data.ProjectName == 'TopicTrend'){
-							// console.log(res.data.data[0])
-							that.optionTrend(res.data.data[0])
-						}
-						if(data.ProjectName == 'TopicImportant'){
-							// console.log('importantData:',res.data.data[0])
-							let importantDatas = res.data.data[0]
-							console.log(importantDatas)
-							let importantData = []
-							importantDatas.List.map((item,index) => {
-								if(item.GoodTopic) importantData.push(item.GoodTopic)
+							that.getSpecial(formData)
+						// 	let val = {
+						// 		ProjectName: 'TopicTrend',
+						// 		EventName: res.data.data[0].EventName
+						// 	}
+						// 	that.getSpecial(val)
+						// 	return
+						// }
+						// if(data.ProjectName == 'TopicTrend'){
+						// 	// console.log(res.data.data[0])
+						// 	that.optionTrend(res.data.data[0])
+						// }
+						// if(data.ProjectName == 'TopicImportant'){
+						// 	// console.log('importantData:',res.data.data[0])
+						// 	let importantDatas = res.data.data[0]
+						// 	console.log(importantDatas)
+						// 	let importantData = []
+						// 	importantDatas.List.map((item,index) => {
+						// 		if(item.GoodTopic) importantData.push(item.GoodTopic)
 									
-								if(item.BadTopic) importantData.push(item.BadTopic)
-							})
-							that.importantData = importantData
-							console.log(importantData)
-							that.optionImportant(importantDatas.List[0].DiaoxingList)
-						}
-						if(data.ProjectName == 'TopicPlatform'){
-							that.platData = res.data.data[0].MediaList
-							that.optionPlat(res.data.data[0].MediaList)
-						}
-						if(data.ProjectName == 'TopicSpread'){
-							that.treeOption(res.data.data)
-						}
+						// 		if(item.BadTopic) importantData.push(item.BadTopic)
+						// 	})
+						// 	that.importantData = importantData
+						// 	console.log(importantData)
+						// 	that.optionImportant(importantDatas.List[0].DiaoxingList)
+						// }
+						// if(data.ProjectName == 'TopicPlatform'){
+						// 	that.platData = res.data.data[0].MediaList
+						// 	that.optionPlat(res.data.data[0].MediaList)
+						// }
+						// if(data.ProjectName == 'TopicSpread'){
+						// 	that.treeOption(res.data.data)
+						// }
 						// list.map((item,index) => {
 						// 	if(item.type == "all"){
 						// 		// item.list.map()
@@ -179,13 +232,36 @@
 					that.showToast(err.msg) 
 				})
 			},
-			getSpecials(e){
+			getSpecial(data){
+				console.log(data);
 				uni.showLoading()
-				getSpecial(e).then(res => {
+				getSpecial(data).then(res => {
 					uni.hideLoading()
 					console.log('getSpecial',res)
 					if(res.data.successCode == '1'){
-						
+						if(data.type == 'GetSpecialVolumn'){
+							that.optionTrend(res.data.data[0])
+						} else if(data.type == 'GetSpecialImportant'){
+							let importantDatas = res.data.data[0]
+							console.log(importantDatas)
+							let importantData = []
+							importantDatas.List.map((item,index) => {
+								if(item.GoodTopic) importantData.push(item.GoodTopic)
+									
+								if(item.BadTopic) importantData.push(item.BadTopic)
+							})
+							that.importantData = importantData
+							console.log(importantData)
+							that.optionImportant(importantDatas.List[0].DiaoxingList)
+							
+						} else if(data.type == 'GetSpecialPlatform'){
+							that.platData = res.data.data[0].MediaList
+							that.optionPlat(res.data.data[0].MediaList)
+						} else if(data.type == 'GetSpecialPath'){
+							that.treeOption(res.data.data)
+						} else if(data.type == 'GetSpecialItemData'){
+							that.specialList = res.data.data[0].list
+						}
 					} else {
 						that.showToast(res.data.msg) 
 					}

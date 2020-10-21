@@ -43,5 +43,9 @@
 		"navigationBarTextStyle": "white",
 		"navigationStyle":"custom",
 		"navigationBarTitleText":"智能舆情系统"
+	},
+	"easycom": {
+		"^uni-(.*)": "@/components/uni-$1/uni-$1.vue",
+		"^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
 	}
 }

@@ -74,7 +74,7 @@
     },
     "h5" : {
         "title" : "智能舆情系统",
-        "domain" : "http://training.adpr365.com",
+        "domain" : "",
         "router" : {
             "mode" : "hash"
         },

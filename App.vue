@@ -1,3 +1,7 @@
+<style lang="scss">
+	/* 注意要写在第一行，同时给style标签加入lang="scss"属性 */
+	@import "uview-ui/index.scss";
+</style>
 <script>
 	var that
 	import Vue from 'vue'
@@ -6,6 +10,7 @@
 	export default {
 		onLaunch: function() {
 			that = this
+			console.log(this.$u.config.v);
 			console.log(that);
 			that.getSystem()
 			uni.getSystemInfo({

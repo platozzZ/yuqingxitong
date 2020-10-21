@@ -2,7 +2,7 @@
 	<view class="">
 		<view class="">
 			<view class="cu-list flex text-center justify-between bg-white padding-lr-sm" >
-				<view class="cu-item  padding-tb-sm" :class="index==TabCur?' cur':''" v-for="(item,index) in tabList" :key="index" @tap="tabSelect" :data-id="index" :data-target="item.type">{{item.name}}</view>
+				<view class="cu-item tabitem padding-tb-sm" :class="index==TabCur?' cur':''" v-for="(item,index) in tabList" :key="index" @tap="tabSelect" :data-id="index" :data-target="item.type">{{item.name}}</view>
 			</view>
 			<!-- <view class="cu-list grid text-center col-4" >
 				<view class="cu-item" :class="index==TabCur?' cur':''" v-if="index>=5" v-for="(item,index) in tabList" :key="index" @tap="tabSelect" :data-id="index" :data-target="item.type">{{item.name}}</view>
@@ -24,7 +24,7 @@
 						<text class="text-cut text-df">{{item.Title}}</text>
 					</view>
 					<view class=" text-sm">
-						| <text class="margin-lr-xs">{{item.Media}}</text>
+						| <text class="margin-lr-xs">{{item.media}}</text>
 						| <text class="margin-lr-xs">{{item.date}}</text>
 						| <text class="margin-lr-xs">{{item.IsRead == 0?'未读':'已读'}}</text>
 					</view>
@@ -37,7 +37,8 @@
 					<view class="info-add line-red text-xs">收藏</view> -->
 				</view>
 			</view>
-			<view class="cu-load" :class="!isLoad?'loading':'over'"></view>
+			<!-- <view class="cu-load" :class="!isLoad?'loading':'over'"></view> -->
+			<uni-load-more :status="status"></uni-load-more>
 		</view>
 		
 	</view>
@@ -58,8 +59,9 @@
 				searchData: '',
 				userId: '',
 				isLoad: false,
-				pageNum: 0,
+				pageNum: 1,
 				totalPage: null,
+				status: 'more',
 				// isSearch: false,
 				ProjectName: 'Good'
 			}
@@ -84,10 +86,6 @@
 			console.log(value);
 			that.getArticle()
 		},
-		onReachBottom(e){
-			console.log(e);
-			console.log(that.totalPage);
-		},
 		methods: {
 			tabSelect(e) {
 				console.log(e.currentTarget.dataset)
@@ -95,7 +93,7 @@
 				let infoList = that.infoList
 				that.TabCur = target.id;
 				that.infoTarget = target.target;
-				that.pageNum = 0
+				that.pageNum = 1
 				that.searchData = ''
 				// that.isSearch = false
 				that.getArticle()
@@ -128,13 +126,30 @@
 						// console.log(that.totalPage);
 						let datas = res.data.data
 						datas.map((item,index) => {
-							item.date = utils.formatDates(new Date(item.MediaDate * 1000))
+							item.date = utils.formatTimes(new Date(item.MediaDate * 1000))
 						})
-						if(that.pageNum == 0){
-							that.list = datas
-							return
+						if(data.PageNum == 1){
+							that.list = []
 						}
 						that.list = that.list.concat(datas)
+						that.pageNum++;
+						if(datas.length == 0 || data.PageNum == res.data.pagecount){
+							that.status = 'noMore';
+							return
+						}
+						that.status = 'more';
+						// that.lastPage = art.last_page
+						// if (data.PageNum == 0) {
+						// 	that.list = []
+						// }
+						// that.list = that.list.concat(art.list)
+						// uni.stopPullDownRefresh();
+						// that.page++;
+						// if(art.list.length == 0 || data.page == art.last_page){
+						// 	that.status = 'noMore';
+						// 	return
+						// }
+						// that.status = 'more';
 					} else {
 						that.showToast(res.data.msg) 
 					}
@@ -146,13 +161,13 @@
 			},
 			//加载更多
 			setReachBottom() {
-				if(that.pageNum == that.totalPage){
-					that.isLoad = true
+				if(that.totalPage >= that.pageNum){
+					that.status = 'loading'
+					that.getArticle()
 					return
 				}
-				that.pageNum++;
-				console.log(that.pageNum);
-				that.getArticle()
+				that.status = 'noMore'
+				
 			},
 			toInfo(e,i){
 				console.log(e)
@@ -272,6 +287,9 @@
 	}
 	.cu-list.grid>.cu-item{
 		padding: 20upx 0;
+	}
+	.cu-item.tabitem{
+		line-height: 1;
 	}
 	.cu-item.cur{
 		color: #cc0000;

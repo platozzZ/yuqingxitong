@@ -1,13 +1,18 @@
 <template>
 	<view class="">
 		<view class="padding-top-sm">
-			<view class=" flex justify-center">
+			<!-- <view class=" flex justify-center">
 				<view class="main-capsule text-xs flex justify-center text-df">
 					<view class="main-capsule-item" :class="index==TabCur?' cur':''" v-for="(item,index) in tabList" :key="index" @tap="tabSelect" :data-id="index" :data-target="item.id" :data-type="item.type">
 						{{item.name}}
 					</view>
 				</view>
-			</view>
+			</view> -->
+			
+			<u-dropdown :close-on-click-mask="mask" ref="uDropdown" :borderBottom="borderBottom" height="50" @open="openDropdown">
+				<u-dropdown-item @change="change" :value="dropOption[0][dropItemIndex[0]].value" :title="dropOption[0][dropItemIndex[0]].label" :options="dropOption[0]"></u-dropdown-item>
+				<u-dropdown-item @change="change" :value="dropOption[1][dropItemIndex[1]].value" :title="dropOption[1][dropItemIndex[1]].label" :options="dropOption[1]"></u-dropdown-item>
+			</u-dropdown>
 			<!-- <view class="tab-content" v-if="TabCur == 0"> -->
 				<view class="cu-card article" v-for="(item,index) in platData" :key="index">
 					<view class="cu-item shadow">
@@ -65,12 +70,57 @@
 				],
 				TabCur: 0,
 				option: [],
-				platData: []
+				platData: [],
+				mask: true,
+				dropOption: [
+					[
+						{
+							label: '本周',
+							value: 'ThisWeek',
+						},
+						{
+							label: '上周',
+							value: 'LastWeek',
+						},
+						{
+							label: '本月',
+							value: 'ThisMonth',
+						},
+						{
+							label: '上月',
+							value: 'LastMonth',
+						}
+					],
+					[
+						{
+							label: 'ALL',
+							value: 'ALL',
+						},
+						{
+							label: 'PGC',
+							value: 'PGC',
+						},
+						{
+							label: 'UGC',
+							value: 'UGC',
+						},
+						
+					],
+				],
+				borderBottom: false,
+				activeColor: '#fff',
+				inactiveColor: '#cc0000',
+				dropIndex: null,
+				dropItemIndex: [0,0]
 			}
 		},
 		mounted() {
 			that = this;
-			that.getPlat('week')
+			let data = {
+				Period: 'ThisWeek',
+				Para: 'ALL',
+			}
+			that.getPlat(data)
 		},
 		methods: {
 			tabSelect(e) {
@@ -80,10 +130,26 @@
 				that.TabCur = target.id;
 				that.getPlat(target.target)
 			},
+			change(value,index) {
+				console.log(value);
+				console.log(index);
+				// that.dropItemIndex = that.dropItemIndex
+				that.$set(that.dropItemIndex,that.dropIndex,index)
+				console.log(that.dropItemIndex);
+				let data = {
+					Period: that.dropOption[0][that.dropItemIndex[0]].value,
+					Para: that.dropOption[1][that.dropItemIndex[1]].value
+				}
+				that.getPlat(data)
+			},
+			closeDropdown() {
+				this.$refs.uDropdown.close();
+			},
+			openDropdown(index){
+				console.log(index);
+				that.dropIndex = index
+			},
 			getPlat(data){
-				// let data = {
-				// 	Proid: e
-				// }
 				uni.showLoading()
 				getPlat(data).then(res => {
 					uni.hideLoading()
@@ -161,7 +227,7 @@
 						type: "category",
 						axisLabel: {
 							fontSize: 10,
-							rotate: 30
+							rotate: index == 0?0:30
 						},
 						// boundaryGap: false,
 						data: xData
@@ -232,5 +298,13 @@
 		width: 100%;
 		height: 100%;
 		background-color: #FFFFFF;
+	}
+	/deep/ .u-dropdown__menu{
+		justify-content: center;
+	}
+	/deep/ .u-dropdown__menu__item{
+		flex-grow: 0;
+		flex-basis: auto;
+		padding: 0 30rpx;
 	}
 </style>

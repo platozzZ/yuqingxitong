@@ -1,13 +1,17 @@
 <template>
 	<view>
 		<view class="bg-white padding-top-sm">
-			<view class=" flex justify-center">
+			<!-- <view class=" flex justify-center">
 				<view class="main-capsule text-xs flex justify-center text-df">
 					<view class="main-capsule-item" :class="index==TabCur?' cur':''" v-for="(item,index) in tabList" :key="index" @tap="tabSelect" :data-id="index" :data-target="item.id">
 						{{item.name}}
 					</view>
 				</view>
-			</view>
+			</view> -->
+			<u-dropdown :close-on-click-mask="mask" ref="uDropdown" :borderBottom="borderBottom" height="50" @open="openDropdown">
+				<u-dropdown-item @change="change" :value="dropOption[0][dropItemIndex[0]].value" :title="dropOption[0][dropItemIndex[0]].label" :options="dropOption[0]"></u-dropdown-item>
+				<u-dropdown-item @change="change" :value="dropOption[1][dropItemIndex[1]].value" :title="dropOption[1][dropItemIndex[1]].label" :options="dropOption[1]"></u-dropdown-item>
+			</u-dropdown>
 			
 			<view class="" v-for="(item,index) in volDatas" :key="index">
 				<view class="margin-top-sm text-center text-xl text-red bg-white">
@@ -62,23 +66,68 @@
 						name: '本周'
 					}, {
 						id: "month",
-						name: '本月'
-					}, {
-						id: "season",
-						name: '本季'
-					}
+						name: 'ALL'
+					}, 
+					// {
+					// 	id: "season",
+					// 	name: '本季'
+					// }
 				],
 				TabCur: 0,
 				nameCur: 'week',
 				volDatas: [],
 				option: [],
+				value1: '2',
+				value2: '3',
+				mask: true,
+				dropOption: [
+					[
+						{
+							label: '本周',
+							value: 'ThisWeek',
+						},
+						{
+							label: '上周',
+							value: 'LastWeek',
+						},
+						{
+							label: '本月',
+							value: 'ThisMonth',
+						},
+						{
+							label: '上月',
+							value: 'LastMonth',
+						}
+					],
+					[
+						{
+							label: 'ALL',
+							value: 'ALL',
+						},
+						{
+							label: 'PGC',
+							value: 'PGC',
+						},
+						{
+							label: 'UGC',
+							value: 'UGC',
+						},
+						
+					],
+				],
+				borderBottom: false,
+				activeColor: '#fff',
+				inactiveColor: '#cc0000',
+				dropIndex: null,
+				dropItemIndex: [0,0]
 				// carData: {}
 			}
 		},
 		mounted() {
 			that = this;
 			let data = {
-				period: 'week',
+				Period: 'ThisWeek',
+				Para: 'ALL',
 			}
 			that.getVol(data)
 			// that.carData = that.$config
@@ -95,12 +144,34 @@
 				}
 				that.getVol(data)
 			},
-			
+			change(value,index) {
+				console.log(value);
+				console.log(index);
+				// that.dropItemIndex = that.dropItemIndex
+				that.$set(that.dropItemIndex,that.dropIndex,index)
+				console.log(that.dropItemIndex);
+				// let data
+				// if(that.dropIndex == 0){
+					
+				// }
+				let data = {
+					Period: that.dropOption[0][that.dropItemIndex[0]].value,
+					Para: that.dropOption[1][that.dropItemIndex[1]].value
+				}
+				that.getVol(data)
+			},
+			closeDropdown() {
+				this.$refs.uDropdown.close();
+			},
+			openDropdown(index){
+				console.log(index);
+				that.dropIndex = index
+			},
 			getVol(data){
 				uni.showLoading()
 				getVol(data).then(res => {
 					console.log(data)
-					console.log('getVol',res.data.data)
+					console.log('getVol',res)
 					if(res.data.successCode == '1'){
 						that.volDatas = res.data.data
 						that.option = new Array(res.data.data.length)
@@ -269,45 +340,6 @@
 	}
 </script>
 
-<script module="echarts" lang="renderjs">
-// 	let myChart
-// 	export default {
-// 		mounted() {
-// 			if (typeof window.echarts === 'function') {
-// 				this.initEcharts()
-// 			} else {
-// 				// 动态引入较大类库避免影响页面展示
-// 				const script = document.createElement('script')
-// 				// view 层的页面运行在 www 根目录，其相对路径相对于 www 计算
-// 				script.src = 'static/js/echarts.js'
-// 				script.onload = this.initEcharts.bind(this)
-// 				document.head.appendChild(script)
-// 			}
-// 		},
-// 		methods: {
-// 			initEcharts() {
-// 				myChart = echarts.init(document.getElementById('echarts'))
-// 				// 观测更新的数据在 view 层可以直接访问到
-// 				myChart.setOption(this.option)
-// 			},
-// 			updateEcharts(newValue, oldValue, ownerInstance, instance) {
-// 				// 监听 service 层数据变更
-// 				myChart.setOption(newValue)
-// 			},
-// 			onClick(event, ownerInstance) {
-// 				// 调用 service 层的方法
-// 				// ownerInstance.callMethod('onViewClick', {
-// 				// 	test: 'test'
-// 				// })
-// 					console.log(event)
-// 				ownerInstance.callMethod('onViewClick', {
-// 					x: event.detail.x,
-// 					y: event.detail.y
-// 				})
-// 			}
-// 		}
-// 	}
-</script>
 <style>
 	.border-bottom{
 		border-bottom: 1rpx solid #ececec;
@@ -322,5 +354,13 @@
 		width: 100%;
 		height: 100%;
 		background-color: #FFFFFF;
+	}
+	/deep/ .u-dropdown__menu{
+		justify-content: center;
+	}
+	/deep/ .u-dropdown__menu__item{
+		flex-grow: 0;
+		flex-basis: auto;
+		padding: 0 30rpx;
 	}
 </style>

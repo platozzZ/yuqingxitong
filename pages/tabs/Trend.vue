@@ -1,14 +1,17 @@
 <template>
 	<view>
 		<view class="bg-white padding-top-sm">
-			<view class=" flex justify-center">
+			<!-- <view class=" flex justify-center">
 				<view class="main-capsule text-xs flex justify-center text-df">
 					<view class="main-capsule-item" :class="index==TabCur?' cur':''" v-for="(item,index) in tabList" :key="index" @tap="tabSelect" :data-id="index" :data-target="item.id">
 						{{item.name}}
 					</view>
 				</view>
-			</view>
-			
+			</view> -->
+			<u-dropdown :close-on-click-mask="mask" ref="uDropdown" :borderBottom="borderBottom" height="50" @open="openDropdown">
+				<u-dropdown-item @change="change" :value="dropOption[0][dropItemIndex[0]].value" :title="dropOption[0][dropItemIndex[0]].label" :options="dropOption[0]"></u-dropdown-item>
+				<u-dropdown-item @change="change" :value="dropOption[1][dropItemIndex[1]].value" :title="dropOption[1][dropItemIndex[1]].label" :options="dropOption[1]"></u-dropdown-item>
+			</u-dropdown>
 			<view class="" v-for="(item,index) in trendDatas" :key="index + item.type">
 				<view class=" padding-top-sm text-center text-xl text-red bg-white">
 					{{item.type == 'all'? $config.brand + '各车型舆情走势':item.type + '及竞品走势比较'}}
@@ -74,14 +77,60 @@
 				TabCur: 0,
 				trendDatas: [],
 				option: [],
+				mask: true,
+				dropOption: [
+					[
+						{
+							label: '本周',
+							value: 'ThisWeek',
+						},
+						{
+							label: '上周',
+							value: 'LastWeek',
+						},
+						{
+							label: '本月',
+							value: 'ThisMonth',
+						},
+						{
+							label: '上月',
+							value: 'LastMonth',
+						}
+					],
+					[
+						{
+							label: 'ALL',
+							value: 'ALL',
+						},
+						{
+							label: 'PGC',
+							value: 'PGC',
+						},
+						{
+							label: 'UGC',
+							value: 'UGC',
+						},
+						
+					],
+				],
+				borderBottom: false,
+				activeColor: '#fff',
+				inactiveColor: '#cc0000',
+				dropIndex: null,
+				dropItemIndex: [0,0]
 				// carData: {}
 			}
 		},
 		mounted() {
 			that = this;
 			// that.carData = that.$config
+			// let data = {
+			// 	period: 'week'
+			// }
+			
 			let data = {
-				period: 'week'
+				Period: 'ThisWeek',
+				Para: 'ALL',
 			}
 			that.getTrend(data)
 		},
@@ -95,6 +144,29 @@
 					period: target.target
 				}
 				that.getTrend(data)
+			},
+			change(value,index) {
+				console.log(value);
+				console.log(index);
+				// that.dropItemIndex = that.dropItemIndex
+				that.$set(that.dropItemIndex,that.dropIndex,index)
+				console.log(that.dropItemIndex);
+				// let data
+				// if(that.dropIndex == 0){
+					
+				// }
+				let data = {
+					Period: that.dropOption[0][that.dropItemIndex[0]].value,
+					Para: that.dropOption[1][that.dropItemIndex[1]].value
+				}
+				that.getTrend(data)
+			},
+			closeDropdown() {
+				this.$refs.uDropdown.close();
+			},
+			openDropdown(index){
+				console.log(index);
+				that.dropIndex = index
 			},
 			getTrend(data){
 				uni.showLoading()
@@ -114,7 +186,7 @@
 				}).catch(err => {
 					uni.hideLoading()
 					console.log(err)
-					that.showToast(res.data.msg) 
+					that.showToast(err.text) 
 				})
 			},
 			options(data){
@@ -216,6 +288,14 @@
 				
 				return option
 			},
+			showToast(e) {
+				uni.showToast({
+					title: e,
+					icon: 'none',
+					mask: true,
+					duration: 2000
+				})
+			}, 
 		}
 	}
 </script>
@@ -234,5 +314,13 @@
 		width: 100%;
 		height: 100%;
 		background-color: #FFFFFF;
+	}
+	/deep/ .u-dropdown__menu{
+		justify-content: center;
+	}
+	/deep/ .u-dropdown__menu__item{
+		flex-grow: 0;
+		flex-basis: auto;
+		padding: 0 30rpx;
 	}
 </style>

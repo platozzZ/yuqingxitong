@@ -22,6 +22,7 @@
 			<nocoope-ration v-if="nameCur == 'nocooperation'"></nocoope-ration>
 			<plat-form v-if="nameCur == 'platform'"></plat-form>
 			<enter-prise v-if="nameCur == 'enterprise'"></enter-prise>
+			<heal-thy v-if="nameCur == 'healthy'"></heal-thy>
 		</view>
 		<view class="cu-bar tabbar bg-white shadow foot justify-center text-xs flex align-center">
 			<!-- <text class="cuIcon-newsfill"></text> -->
@@ -47,6 +48,7 @@
 	import Nocooperation from '../tabs/Nocooperation.vue'
 	import Platform from '../tabs/Platform.vue'
 	import Enterprise from '../tabs/Enterprise.vue'
+	import Healthy from '../tabs/Healthy.vue'
 	export default {
 		components: {
 		    'abs-tract': Abstract,
@@ -62,7 +64,8 @@
 			'coope-ration': Cooperation,
 			'nocoope-ration': Nocooperation,
 			'plat-form': Platform,
-			'enter-prise': Enterprise
+			'enter-prise': Enterprise,
+			'heal-thy': Healthy
 		},
 		data() {
 			return {
@@ -79,7 +82,12 @@
 						id: "trend",
 						name: '走势',
 						// newsid: 223
-					}, {
+					}, 
+					{
+						id: 'healthy',
+						name: '健康度',
+					},
+					{
 						id: "plusinfo",
 						name: '正资讯',
 						// newsid: 221
@@ -95,17 +103,19 @@
 						id: "minuscloud",
 						name: '负词云',
 						// newsid: 208
-					}, {
-						id: "plustopic",
-						name: '正话题',
-						// newsid: 208
-					}, {
-						id: "minustopic",
-						name: '负话题',
-						// newsid: 208
-					}, {
+					}, 
+					// {
+					// 	id: "plustopic",
+					// 	name: '正话题',
+					// 	// newsid: 208
+					// }, {
+					// 	id: "minustopic",
+					// 	name: '负话题',
+					// 	// newsid: 208
+					// }, 
+					{
 						id: "special",
-						name: '专题',
+						name: '专项',
 						// newsid: 208
 					}, {
 						id: "cooperation",
@@ -119,11 +129,11 @@
 						id: "platform",
 						name: '渠道',
 						// newsid: 208
-					}, {
-						id: "enterprise",
-						name: '企业',
-						// newsid: 208
-					},
+					}, 
+					// {
+					// 	id: "enterprise",
+					// 	name: '企业'
+					// },
 				],
 				CustomBar: this.CustomBar,
 				tabFirst: true,

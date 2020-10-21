@@ -14,8 +14,9 @@
 				</view>
 			</view>
 			<view class="info-content padding">
-				<view class="info-content-html" v-html="art.Contents"></view>
-				<!-- <u-parse :content="art.Contents" /> -->
+				<!-- <view class="info-content-html" v-html="art.Contents"></view> -->
+				<!-- <a-parse :content="art.Contents" /> -->
+				<u-parse :html="art.Contents"></u-parse>
 			</view>
 		</view>
 		<view class="info-none" v-if="noContent">
@@ -27,12 +28,12 @@
 <script>	
 	var that
 	import { getArticleDetail, addBookMark, deleteBookMark } from '@/utils/api.js'
-	// import uParse from '@/components/gaoyia-parse/parse.vue'
+	import aParse from '@/components/gaoyia-parse/parse.vue'
 	import utils from '../../utils/util.js'
 	export default {
-		// components: {
-		// 	uParse
-		// },
+		components: {
+			aParse
+		},
 		data () {
 			return {
 				articleId: null,
@@ -81,6 +82,9 @@
 						}
 						// console.log('getArticleDetail',art)
 						that.art = art
+						uni.setNavigationBarTitle({
+							title: art.Title
+						})
 						that.hasContent = true
 						that.noContent = false
 					} else {
