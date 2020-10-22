@@ -17,7 +17,7 @@
 			<minus-cloud v-if="nameCur == 'minuscloud'"></minus-cloud>
 			<plus-topic v-if="nameCur == 'plustopic'"></plus-topic>
 			<minus-topic v-if="nameCur == 'minustopic'"></minus-topic>
-			<spe-cial v-if="nameCur == 'special'"></spe-cial>
+			<spe-cial v-if="nameCur == 'special'" :loadDataEventCount="loadDataEventCount"></spe-cial>
 			<coope-ration v-if="nameCur == 'cooperation'"></coope-ration>
 			<nocoope-ration v-if="nameCur == 'nocooperation'"></nocoope-ration>
 			<plat-form v-if="nameCur == 'platform'"></plat-form>

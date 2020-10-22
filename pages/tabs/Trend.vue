@@ -12,15 +12,16 @@
 				<u-dropdown-item @change="change" :value="dropOption[0][dropItemIndex[0]].value" :title="dropOption[0][dropItemIndex[0]].label" :options="dropOption[0]"></u-dropdown-item>
 				<u-dropdown-item @change="change" :value="dropOption[1][dropItemIndex[1]].value" :title="dropOption[1][dropItemIndex[1]].label" :options="dropOption[1]"></u-dropdown-item>
 			</u-dropdown>
-			<view class="" v-for="(item,index) in trendDatas" :key="index + item.type">
-				<view class=" padding-top-sm text-center text-xl text-red bg-white">
-					{{item.type == 'all'? $config.brand + '各车型舆情走势':item.type + '及竞品走势比较'}}
-				</view>
-				<view class="qiun-charts">
-					<echarts :option="option[index]" class="charts"></echarts>
+			<view class="" v-if="showChart">
+				<view class="" v-for="(item,index) in trendDatas" :key="index + item.type">
+					<view class=" padding-top-sm text-center text-xl text-red bg-white">
+						{{item.type == 'all'? $config.brand + '各车型舆情走势':item.type + '及竞品走势比较'}}
+					</view>
+					<view class="qiun-charts">
+						<echarts :option="option[index]" class="charts"></echarts>
+					</view>
 				</view>
 			</view>
-			
 			<!-- 
 			<view class="margin-top-sm padding-top-sm text-center text-xl text-red bg-white">
 				广本各车型舆情走势
@@ -76,6 +77,7 @@
 				],
 				TabCur: 0,
 				trendDatas: [],
+				showChart: false,
 				option: [],
 				mask: true,
 				dropOption: [
@@ -169,12 +171,14 @@
 				that.dropIndex = index
 			},
 			getTrend(data){
+				that.showChart = false
 				uni.showLoading()
 				getTrend(data).then(res => {
 					uni.hideLoading()
 					console.log('getTrend',res)
 					if(res.data.successCode == '1'){
 						// formatMD
+						that.showChart = true
 						let art = res.data.data
 						let xData = []
 						

@@ -2,9 +2,9 @@
 	<view class="cu-list menu sm-border margin-top">
 		<view 
 			class="cu-item" 
-			:class="item.IsRead == 0?'text-blue':'text-gray'" 
 			v-for="(item,index) in list" 
 			:key="item.Article_ID"
+			:class="item.ProjectName == 0?'text-red':'text-blue'"
 			@tap.stop="toInfo(item,index)"
 		>
 			<view class="content padding-tb-xs">
@@ -14,15 +14,15 @@
 				<view class=" text-sm">
 					| <text class="margin-lr-xs">{{item.Media}}</text>
 					| <text class="margin-lr-xs">{{item.date}}</text>
-					| <text class="margin-lr-xs">{{item.IsRead == 0?'未读':'已读'}}</text>
+					<!-- | <text class="margin-lr-xs">{{item.IsRead == 0?'未读':'已读'}}</text> -->
 				</view>
 			</view>
-			<view class="action text-xxl padding-lr padding-tb-sm" @tap.stop="bookMark(item,index)">
+			<!-- <view class="action text-xxl padding-lr padding-tb-sm" @tap.stop="bookMark(item,index)">
 				<text class="cuIcon-favor line-blue" v-if="item.IsBookMark == 0"></text>
 				<text class="cuIcon-favorfill line-blue" v-else></text>
-			</view>
+			</view> -->
 		</view>
-		<uni-load-more :status="status"></uni-load-more>
+		<!-- <uni-load-more :status="status"></uni-load-more> -->
 	</view>
 </template>
 
@@ -50,7 +50,7 @@ export default {
 			console.log(i)
 			// that.$set(that.list[i],'IsRead',1)
 			uni.navigateTo({
-			    url: '../pages/infoDetail/infoDetail?id=' + e.Article_ID,
+			    url: '../../pages/infoDetail/infoDetail?id=' + e.Article_ID,
 				// + '&ProjectName=Bad' + '&UserID=' + that.userId
 			});
 		},

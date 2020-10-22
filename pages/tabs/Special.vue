@@ -89,6 +89,19 @@
 				
 			}
 		},
+		props: {
+			loadDataEventCount:{
+				type:Number,
+				default:0
+			}
+		},
+		watch: {
+			loadDataEventCount() {
+				if(this.TabCur == 4){
+					this.setReachBottom();
+				}
+			}
+		},
 		mounted() {
 			that = this;
 			let data = {
@@ -136,8 +149,8 @@
 					}
 				} else {
 					val = {
-						type: e.id,
-						EventName: that.eventName
+						type: that.projectName,
+						EventName: e.EventName
 					}
 				}
 				// let val = {
@@ -260,6 +273,10 @@
 						} else if(data.type == 'GetSpecialPath'){
 							that.treeOption(res.data.data)
 						} else if(data.type == 'GetSpecialItemData'){
+							let specialList = res.data.data[0].list
+							specialList.map((item,index) => {
+								item.date = utils.formatTimes(new Date(item.MediaDate * 1000))
+							})
 							that.specialList = res.data.data[0].list
 						}
 					} else {
@@ -270,6 +287,16 @@
 					console.log(err)
 					that.showToast(err.msg) 
 				})
+			},
+			
+			//加载更多
+			setReachBottom() {
+				if(that.totalPage >= that.pageNum){
+					that.status = 'loading'
+					that.getArticle()
+					return
+				}
+				that.status = 'noMore'
 			},
 			setOption(index,xData,seriesData){
 				let option = {

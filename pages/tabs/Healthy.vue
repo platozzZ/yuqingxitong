@@ -14,7 +14,7 @@
 			</u-dropdown>
 			<view class="" v-for="(item,index) in trendDatas" :key="index + item.type">
 				<view class=" padding-top-sm text-center text-xl text-red bg-white">
-					{{item.type == 'all'? $config.brand + '各车型舆情走势':item.type + '及竞品走势比较'}}
+					全媒体舆情健康度走势
 				</view>
 				<view class="qiun-charts">
 					<echarts :option="option[index]" class="charts"></echarts>
@@ -29,7 +29,7 @@
 			</view>
 			<view class="" v-for="(item,index) in trendDatas2" :key="item.type + index">
 				<view class=" padding-top-sm text-center text-xl text-red bg-white">
-					{{item.type == 'all'? $config.brand + '各车型舆情走势':item.type + '及竞品走势比较'}}
+					论坛舆情健康度走势
 				</view>
 				<view class="qiun-charts">
 					<echarts :option="option2[index]" class="charts"></echarts>
@@ -215,7 +215,11 @@
 				MediaType: 'ALL',
 			}
 			that.getHealthMedia(data)
-			that.getHealthBbs(data)
+			let val = {
+				period_var: 'ThisWeek',
+				MediaType: '论坛',
+			}
+			that.getHealthBbs(val)
 		},
 		methods: {
 			tabSelect(e) {
@@ -341,11 +345,16 @@
 							markLine: {
 								silent: true,
 								data: [{
-									yAxis: 90
+									yAxis: 95
 								}],
 								lineStyle: {
 									color: '#c00000'
-								}
+								},
+								label:{
+									position:"end",         //将警示值放在哪个位置，三个值“start”,"middle","end"  开始  中点 结束
+									formatter: "95%",
+									fontSize: 10
+								},
 							}
 						})
 					})
@@ -380,6 +389,7 @@
 							name: itemc,
 							type: 'line',
 							// stack: '',
+							showAllSymbol: 'true',
 							smooth: true,
 							data: yData,
 							markLine: {
@@ -389,7 +399,12 @@
 								}],
 								lineStyle: {
 									color: '#c00000'
-								}
+								},
+								label:{
+									position:"end",         //将警示值放在哪个位置，三个值“start”,"middle","end"  开始  中点 结束
+									formatter: "90%",
+									fontSize: 10
+								},
 							}
 						})
 					})
@@ -439,7 +454,7 @@
 					},
 					grid: {
 						left: "50",
-						right: "25",
+						right: "28",
 						bottom: "25",
 						top: "30",
 						containLabel: false
@@ -449,8 +464,8 @@
 						axisLabel: {
 							fontSize: 10,
 							// rotate: 30,
-							showMinLabel: true,//显示最小值
-							showMaxLabel: true,//显示最大值
+							// showMinLabel: true,//显示最小值
+							// showMaxLabel: true,//显示最大值
 						},
 						boundaryGap: false,
 						data: xData

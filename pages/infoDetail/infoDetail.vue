@@ -2,9 +2,10 @@
 	<view class="bg-white">
 		<cu-custom bgColor="" :isBack="true" :noMore="true" :hasAdd="true" :favorFill="favorFill" @toggleAdd="toggleAdd"><block slot="content">智能舆情系统</block></cu-custom>
 		<view class="" v-if="hasContent">
-			<view class="info-title text-xxl padding">
+			<view class="info-title text-xxl padding" hover-class="u-cell-hover" @click="toRoute">
 				{{art.Title}}
 			</view>
+			<!-- <navigator class="info-title text-xxl margin" :url="art.LinkURL">{{art.Title}}</navigator> -->
 			<view class="text-sm padding-lr">
 				<view class="">
 					{{art.Media + ' | ' + art.Author}}
@@ -170,6 +171,9 @@
 						that.userId = value.userid
 				    }
 				}
+			},
+			toRoute(){
+				location.href = that.art.LinkURL
 			},
 			showToast(e) {
 				uni.showToast({

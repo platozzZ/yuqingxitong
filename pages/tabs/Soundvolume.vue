@@ -12,19 +12,20 @@
 				<u-dropdown-item @change="change" :value="dropOption[0][dropItemIndex[0]].value" :title="dropOption[0][dropItemIndex[0]].label" :options="dropOption[0]"></u-dropdown-item>
 				<u-dropdown-item @change="change" :value="dropOption[1][dropItemIndex[1]].value" :title="dropOption[1][dropItemIndex[1]].label" :options="dropOption[1]"></u-dropdown-item>
 			</u-dropdown>
-			
-			<view class="" v-for="(item,index) in volDatas" :key="index">
-				<view class="margin-top-sm text-center text-xl text-red bg-white">
-					{{item.type == 'all'? $config.brand + '各车型舆情声量':item.type + '及竞品声量比较'}}
-				</view>
-				<!-- <p-lazy-render :data="option" :time="300" :limit="50" trackByData> -->
-					<view class="qiun-charts">
-						<echarts :option="option[index]" class="charts"></echarts>
-						<!-- <view class="" slot="tip">
-							tipssssssssssssssssss
-						</view> -->
+			<view class="" v-if="showChart">			
+				<view class="" v-for="(item,index) in volDatas" :key="index">
+					<view class="margin-top-sm text-center text-xl text-red bg-white">
+						{{item.type == 'all'? $config.brand + '各车型舆情声量':item.type + '及竞品声量比较'}}
 					</view>
-				<!-- </p-lazy-render> -->
+					<!-- <p-lazy-render :data="option" :time="300" :limit="50" trackByData> -->
+						<view class="qiun-charts">
+							<echarts :option="option[index]" class="charts"></echarts>
+							<!-- <view class="" slot="tip">
+								tipssssssssssssssssss
+							</view> -->
+						</view>
+					<!-- </p-lazy-render> -->
+				</view>
 			</view>
 			<!-- <view class="margin-top-sm padding-top-sm text-center text-xl text-red bg-white">
 				广本各车型舆情声量
@@ -76,6 +77,7 @@
 				TabCur: 0,
 				nameCur: 'week',
 				volDatas: [],
+				showChart: false,
 				option: [],
 				value1: '2',
 				value2: '3',
@@ -169,10 +171,12 @@
 			},
 			getVol(data){
 				uni.showLoading()
+				that.showChart = false
 				getVol(data).then(res => {
 					console.log(data)
 					console.log('getVol',res)
 					if(res.data.successCode == '1'){
+						that.showChart = true
 						that.volDatas = res.data.data
 						that.option = new Array(res.data.data.length)
 						
@@ -189,7 +193,7 @@
 			},
 			options(optionData){
 				// let optionData = that.volDatas
-				// console.log(optionData)
+				console.log(optionData)
 				let option = []
 				optionData.map((item,index) => {
 					let seriesData = []
@@ -224,9 +228,9 @@
 			setOption(legendData,xData,seriesData){
 				// console.log(legendData)
 				// console.log(xData)
-				// console.log(seriesData)
+				console.log(seriesData)
 				let option = {
-	// #f37b1d;#fbbd08;#8dc63f; #39b54a;#1cbbb4;#0081ff; #6739b6;#9c26b0;#e03997; #a5673f;#8799a3
+					// #f37b1d;#fbbd08;#8dc63f; #39b54a;#1cbbb4;#0081ff; #6739b6;#9c26b0;#e03997; #a5673f;#8799a3
 
 					// #008ad2       #6b5fc2      #e67b60     #08b19c     #1c74b3
 					// color: ['#f37b1d','#8dc63f','#6739b6','#1cbbb4','#e03997','#fbbd08'],
