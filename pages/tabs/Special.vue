@@ -35,7 +35,7 @@
 		<special-important :importantData="importantData" :importantOption="importantOption" v-if="TabCur == 1"></special-important>
 		<special-platform :platData="platData" :platOption="platOption" v-if="TabCur == 2"></special-platform>
 		<special-tree :optionTree="optionTree" v-if="TabCur == 3"></special-tree>
-		<special-list :list="specialList" v-if="TabCur == 4"></special-list>
+		<special-list :list="specialList" :status="status" v-if="TabCur == 4"></special-list>
 	</view>
 </template>
 
@@ -85,7 +85,10 @@
 				treeLen: 0,
 				total: 10,
 				current: 1,
-				specialList: []
+				specialList: [],
+				page: 1,
+				totalPage: 0,
+				status: 'more'
 				
 			}
 		},
@@ -273,11 +276,37 @@
 						} else if(data.type == 'GetSpecialPath'){
 							that.treeOption(res.data.data)
 						} else if(data.type == 'GetSpecialItemData'){
-							let specialList = res.data.data[0].list
-							specialList.map((item,index) => {
-								item.date = utils.formatTimes(new Date(item.MediaDate * 1000))
-							})
-							that.specialList = res.data.data[0].list
+							that.totalPage = res.data.allPage
+							// console.log(that.totalPage);
+							// let datas = res.data.data
+							// datas.map((item,index) => {
+							// 	item.date = utils.formatTimes(new Date(item.MediaDate * 1000))
+							// })
+							console.log(res.data.data);
+							console.log(res.data.data[0]);
+							console.log(res.data.data[0].list);
+							if(res.data.data[0].list){
+								let specialList = res.data.data[0].list
+								specialList.map((item,index) => {
+									item.date = utils.formatTimes(new Date(item.MediaDate * 1000))
+								})
+								if(data.CurPage == 1){
+									that.specialList = []
+									// return
+								}
+								that.specialList = that.specialList.concat(specialList)
+								that.page++;
+								if(specialList.length == 0 || data.CurPage == res.data.allPage){
+									that.status = 'noMore';
+									return
+								}
+								that.status = 'more';
+							} else {
+								that.specialList = []
+								that.status = 'noMore';
+								
+							}
+							// that.specialList = res.data.data[0].list
 						}
 					} else {
 						that.showToast(res.data.msg) 
@@ -291,9 +320,16 @@
 			
 			//加载更多
 			setReachBottom() {
-				if(that.totalPage >= that.pageNum){
+				if(that.totalPage >= that.page){
 					that.status = 'loading'
-					that.getArticle()
+					let val = {
+						type: that.projectName,
+						EventName: that.eventName,
+						CurPage: that.page,
+						PerNum: 20
+					}
+					that.getSpecial(val)
+					// that.getArticle()
 					return
 				}
 				that.status = 'noMore'

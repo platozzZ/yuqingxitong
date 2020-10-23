@@ -22,7 +22,7 @@
 				<text class="cuIcon-favorfill line-blue" v-else></text>
 			</view> -->
 		</view>
-		<!-- <uni-load-more :status="status"></uni-load-more> -->
+		<uni-load-more :status="status"></uni-load-more>
 	</view>
 </template>
 
@@ -34,11 +34,15 @@ export default {
 			default: function(e) {
 				return []
 			}
+		},
+		status: {
+			type: String,
+			default: 'more'
 		}
 	},
 	data() {
 		return {
-			status: 'more'
+			// status: 'more'
 		}
 	},
 	mounted() {
