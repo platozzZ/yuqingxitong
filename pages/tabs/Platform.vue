@@ -219,7 +219,7 @@
 					grid: {
 						left: "45",
 						right: "20",
-						bottom: index == 0?'20':'50',
+						bottom: index == 0?'30':'50',
 						top: "10",
 						containLabel: false
 					},
@@ -227,7 +227,8 @@
 						type: "category",
 						axisLabel: {
 							fontSize: 10,
-							rotate: index == 0?0:30
+							rotate: 30
+							// rotate: index == 0?0:30
 						},
 						// boundaryGap: false,
 						data: xData

@@ -97,10 +97,10 @@
 				tabList: [
 					{
 						id: "y",
-						name: '友好媒体TOP30',
+						name: '友好媒体TOP50',
 					}, {
 						id: "n",
-						name: '不友好媒体TOP30',
+						name: '不友好媒体TOP50',
 					}
 				],
 				TabCur: 0,
