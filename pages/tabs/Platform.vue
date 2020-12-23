@@ -1,51 +1,54 @@
 <template>
 	<view class="">
 		<view class="padding-top-sm">
-			<!-- <view class=" flex justify-center">
-				<view class="main-capsule text-xs flex justify-center text-df">
-					<view class="main-capsule-item" :class="index==TabCur?' cur':''" v-for="(item,index) in tabList" :key="index" @tap="tabSelect" :data-id="index" :data-target="item.id" :data-type="item.type">
-						{{item.name}}
-					</view>
-				</view>
-			</view> -->
-			
 			<u-dropdown :close-on-click-mask="mask" ref="uDropdown" :borderBottom="borderBottom" height="50" @open="openDropdown">
-				<u-dropdown-item @change="change" :value="dropOption[0][dropItemIndex[0]].value" :title="dropOption[0][dropItemIndex[0]].label" :options="dropOption[0]"></u-dropdown-item>
+				<!-- @change="change" :value="dropOption[0][dropItemIndex[0]].value" :options="dropOption[0]" -->
+				<u-dropdown-item :title="tagIndex == null?'其他':dropOption[0][tagIndex].label">
+					<view class="slot-content">
+						<view class="item-box">
+							<view class="item" :class="index == tagIndex ? 'active' : ''" @tap="tagClick(index)" v-for="(item, index) in dropOption[0]" :key="index">
+								{{item.label}}
+							</view>
+						</view>
+						<view class="custom-container flex align-center u-m-b-50">
+							自定义时间：
+							<view class="flex-sub">
+								<view class="custom-time u-m-b-30">
+									<u-input v-model="pickerStar" :custom-style="customStyle" type="select" height="60" placeholder="请选择开始时间" :border="true" @click="handleTime('star')" />
+								</view>
+								<!-- <view class="margin-tb-sm">至</view> -->
+								<view class="custom-time">
+									<u-input v-model="pickerEnd" :custom-style="customStyle" type="select" height="60" placeholder="请选择截止时间" :border="true" @click="handleTime('end')" />
+								</view>
+							</view>
+						</view>
+						<u-button type="error" @click="handleClick">确定</u-button>
+					</view>
+					
+				</u-dropdown-item>
 				<u-dropdown-item @change="change" :value="dropOption[1][dropItemIndex[1]].value" :title="dropOption[1][dropItemIndex[1]].label" :options="dropOption[1]"></u-dropdown-item>
+				<u-dropdown-item @change="change" :value="dropOption[2][dropItemIndex[2]].value" :title="dropOption[2][dropItemIndex[2]].label" :options="dropOption[2]"></u-dropdown-item>
 			</u-dropdown>
-			<!-- <view class="tab-content" v-if="TabCur == 0"> -->
-				<view class="cu-card article" v-for="(item,index) in platData" :key="index">
-					<view class="cu-item shadow">
-						<view class="title">
-							{{item.type == 'all'? $config.brand + '各平台声量':item.type + 'TOP10'}}
-						</view>
-						<view class="qiun-charts">
-							<echarts :option="option[index]" class="charts"></echarts>
-						</view>
+			<view class="cu-card article" v-for="(item,index) in platData" :key="index">
+				<view class="cu-item shadow">
+					<view class="title">
+						{{item.type == 'all'? $config.brand + '各平台声量':item.type + 'TOP10'}}
+					</view>
+					<view class="qiun-charts">
+						<echarts :option="option[index]" class="charts"></echarts>
 					</view>
 				</view>
-				<!-- <view class="cu-card article">
-					<view class="cu-item shadow" style="margin-top: 0;">
-						<view class="title">
-							APP平台对广本的声量TOP10
-						</view>
-						<view class="qiun-charts">
-							<echarts :option="option" class="charts"></echarts>
-						</view>
-					</view>
-				</view>
-				<view class="cu-card article">
-					<view class="cu-item shadow" style="margin-top: 0;">
-						<view class="title">
-							自媒体对广本的声量TOP10
-						</view>
-						<view class="qiun-charts">
-							<echarts :option="option" class="charts"></echarts>
-						</view>
-					</view>
-				</view> -->
-			<!-- </view> -->
+			</view>
 		</view>
+		
+		<u-picker
+			v-model="pickerShow"
+			:default-time="defaultTime"
+			:start-year="starTime"
+			:end-year="endTime"
+			:params="params"
+			@confirm="pickerConfirm"
+		></u-picker>
 	</view>
 </template>
 
@@ -59,16 +62,6 @@
 		},
 		data() {
 			return {
-				tabList: [
-					{
-						id: "week",
-						name: '本周排行',
-					}, {
-						id: "month",
-						name: '本月排行',
-					}
-				],
-				TabCur: 0,
 				option: [],
 				platData: [],
 				mask: true,
@@ -106,29 +99,121 @@
 						},
 						
 					],
+					[
+						{
+							label: '全部',
+							value: 'ALL',
+						},
+						{
+							label: '正面',
+							value: '0',
+						},
+						{
+							label: '负面',
+							value: '1',
+						},
+						// {
+						// 	label: '其他',
+						// 	value: '2',
+						// },
+					],
 				],
 				borderBottom: false,
 				activeColor: '#fff',
 				inactiveColor: '#cc0000',
 				dropIndex: null,
-				dropItemIndex: [0,0]
+				dropItemIndex: [0,0],
+				tagIndex: 0,
+				params: {
+					year: true,
+					month: true,
+					day: true,
+					hour: true,
+					minute: true,
+					second: true
+				},
+				pickerShow: false,
+				defaultTime: '',
+				pickerType: '',
+				pickerStar: '',
+				pickerEnd: '',
+				customStyle: {
+					fontSize: '26rpx'
+				},
+				queryForm: {
+					type: 'GetPlat',
+					ProjectName: 'PlatForm',
+					Period: 'ThisWeek',
+					Para: 'ALL',
+					DiaoXing: 'ALL',
+					BeginDate: '',
+					EndDate: '',
+				},
 			}
 		},
 		mounted() {
 			that = this;
-			let data = {
-				Period: 'ThisWeek',
-				Para: 'ALL',
-			}
-			that.getPlat(data)
+			that.getPlat(that.queryForm)
 		},
 		methods: {
-			tabSelect(e) {
-				let target = e.currentTarget.dataset
-				console.log(e.currentTarget.dataset)
-				// console.log(this.scrollLeftData)
-				that.TabCur = target.id;
-				that.getPlat(target.target)
+			tagClick(index){
+				that.tagIndex = index
+				that.pickerStar = ''
+				that.pickerEnd = ''
+			},
+			handleTime(e){
+				let time = that.$u.timeFormat(new Date().getTime(), 'yyyy-mm-dd')
+				if(e == 'star'){
+					if(!that.pickerStar){
+						that.defaultTime = time + ' 00:00:00'
+					} else {
+						that.defaultTime = that.pickerStar
+					}
+				} else {
+					if(!that.pickerEnd){
+						that.defaultTime = time + ' 23:59:59'
+					} else {
+						that.defaultTime = that.pickerEnd 
+					}
+				}
+					console.log(that.defaultTime);
+				that.pickerShow = true
+				that.pickerType = e
+			},
+			pickerConfirm(e){
+				that.tagIndex = null
+				let time = e.year + '-' + e.month + '-' + e.day + ' ' + e.hour + ':' + e.minute + ':' + e.second
+				if(that.pickerType == 'star'){
+					if(!!that.pickerEnd && time > that.pickerEnd){
+						that.showToast('开始时间不能大于结束时间')
+						return
+					}
+					that.pickerStar = time
+					return
+				}
+				if(!!that.pickerStar && time < that.pickerStar){
+					that.showToast('结束时间不能小于开始时间')
+					return
+				}
+				that.pickerEnd = time
+			},
+			handleClick(){
+				// that.queryForm.Para = that.dropOption[1][that.dropItemIndex[1]].value
+				// that.queryForm.DiaoXing = that.dropOption[2][that.dropItemIndex[2]].value
+				if(!that.pickerStar && !that.pickerEnd){
+					that.queryForm.type = 'GetPlat'
+					that.queryForm.Period = that.dropOption[0][that.tagIndex].value
+					that.queryForm.BeginDate = ''
+					that.queryForm.EndDate = ''
+				} else {
+					that.queryForm.type = 'GetPlatS'
+					that.queryForm.Period = ''
+					that.queryForm.BeginDate = that.pickerStar
+					that.queryForm.EndDate = that.pickerEnd
+				}
+				console.log(that.queryForm)
+				that.getTrend(that.queryForm)
+				that.closeDropdown()
 			},
 			change(value,index) {
 				console.log(value);
@@ -136,11 +221,21 @@
 				// that.dropItemIndex = that.dropItemIndex
 				that.$set(that.dropItemIndex,that.dropIndex,index)
 				console.log(that.dropItemIndex);
-				let data = {
-					Period: that.dropOption[0][that.dropItemIndex[0]].value,
-					Para: that.dropOption[1][that.dropItemIndex[1]].value
+				that.queryForm.Para = that.dropOption[1][that.dropItemIndex[1]].value
+				that.queryForm.DiaoXing = that.dropOption[2][that.dropItemIndex[2]].value
+				if(!that.pickerStar && !that.pickerEnd){
+					that.queryForm.type = 'GetPlat'
+					that.queryForm.Period = that.dropOption[0][that.tagIndex].value
+					that.queryForm.BeginDate = ''
+					that.queryForm.EndDate = ''
+				} else {
+					that.queryForm.type = 'GetPlatS'
+					that.queryForm.Period = ''
+					that.queryForm.BeginDate = that.pickerStar
+					that.queryForm.EndDate = that.pickerEnd
 				}
-				that.getPlat(data)
+				console.log(that.queryForm)
+				that.getPlat(that.queryForm)
 			},
 			closeDropdown() {
 				this.$refs.uDropdown.close();
@@ -150,22 +245,29 @@
 				that.dropIndex = index
 			},
 			getPlat(data){
-				uni.showLoading()
-				getPlat(data).then(res => {
-					uni.hideLoading()
-					console.log('getPlat',res)
-					if(res.data.successCode == '1'){
-						
-						that.platData = res.data.data
-						that.options(res.data.data)
-					} else {
-						that.showToast(res.data.msg) 
-					}
+				that.$u.post('/ashx/Trend/Trend.ashx',data).then(res => {
+					console.log('getPlat',res);
+					that.platData = res.data.data
+					that.options(res.data.data)
 				}).catch(err => {
-					uni.hideLoading()
-					console.log(err)
-					that.showToast(err.msg) 
-				})
+					console.log('getPlat-catch', err);
+				});
+				// uni.showLoading()
+				// getPlat(data).then(res => {
+				// 	uni.hideLoading()
+				// 	console.log('getPlat',res)
+				// 	if(res.data.successCode == '1'){
+						
+				// 		that.platData = res.data.data
+				// 		that.options(res.data.data)
+				// 	} else {
+				// 		that.showToast(res.data.msg) 
+				// 	}
+				// }).catch(err => {
+				// 	uni.hideLoading()
+				// 	console.log(err)
+				// 	that.showToast(err.msg) 
+				// })
 			},
 			options(data){
 				let optionData = data

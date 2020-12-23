@@ -5,7 +5,6 @@
 <script>
 	var that
 	import Vue from 'vue'
-	import axios from "axios"
 	import { getSystem } from '@/utils/api.js'
 	export default {
 		onLaunch: function() {
@@ -75,23 +74,6 @@
 				})
 				
 			},
-			// 获取配置文件
-			// getBaseUrl() {
-			// 	axios.get('./static/config.json', { headers: { "Cache-Control": "no-cache" } }).then((res) => {
-			// 		console.log('getBaseUrl:',res);
-			// 		Vue.prototype.$BASE_URL = res.data.BASE_URL;
-			// 		// console.log(this);
-			// 		// console.log(this.$BASE_URL);
-			//     })
-			// },
-			// getCars() {
-			// 	axios.get('./static/car.json', { headers: { "Cache-Control": "no-cache" } }).then((res) => {
-			// 		console.log('getCars:',res);
-			// 		Vue.prototype.$config = res.data
-			// 		// console.log(this);
-			// 		// console.log(this.$BASE_URL);
-			//     })
-			// }
 		}
 	}
 </script>

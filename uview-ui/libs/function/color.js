@@ -17,7 +17,7 @@ let color = {
 	warningDisabled: "#fcbd71",
 	warningLight: "#fdf6ec",
 	
-	error: "#fa3534",
+	error: "#cc0000",
 	errorDark: "#dd6161",
 	errorDisabled: "#fab6b6",
 	errorLight: "#fef0f0",

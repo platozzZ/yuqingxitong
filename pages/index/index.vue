@@ -33,6 +33,7 @@
 
 <script>
 	var that
+	import watermark from '@/common/watermark.js'
 	import { getLogin } from '@/utils/api.js'
 	import Abstract from '../tabs/Abstract.vue'
 	import Soundvolume from '../tabs/Soundvolume.vue'
@@ -50,6 +51,7 @@
 	import Enterprise from '../tabs/Enterprise.vue'
 	import Healthy from '../tabs/Healthy.vue'
 	export default {
+		mixins: [watermark],
 		components: {
 		    'abs-tract': Abstract,
 			'sound-volume': Soundvolume,
@@ -142,15 +144,34 @@
 				scrollLeft: 0,
 				scrollLeftData: [],
 				loadDataEventCount: 0,
+				showCanvas: true,
+				canvasText: '',
+				canvasText2: ''
 			}
 		},
 		onLoad() {
 			that = this
-			console.log(that)
-			// console.log(that.$config);
-			console.log(that.$cars);
-			// that.getCar()
-			// that.getJp()
+			// console.log()
+			console.log(uni.upx2px(26))
+			let  value = uni.getStorageSync('userData');
+			if (value) {
+			    console.log(value);
+				let time = that.$u.timeFormat(new Date().getTime(), 'yyyy-mm-dd hh:MM:ss')
+				let year = that.$u.timeFormat(new Date().getTime(), 'yyyy')
+				let starTime,endTime
+				starTime = year - 1 + ''
+				endTime = year
+				console.log(starTime);
+				console.log(endTime);
+				that.$u.vuex('starTime', starTime);
+				that.$u.vuex('endTime', endTime);
+				that.canvasText = value.username
+				that.canvasText2 = time
+				console.log(that.canvasText);
+				console.log(that.canvasText2);
+			}
+			that.initWatermark(); // 可以在水印内容准备好后执行初始化
+			
 		},
 		// onShow() {
 			
@@ -252,7 +273,12 @@
 </script>
 <style lang="scss" scoped>
 	$color-primary: #cc0000;
-	
+	.watermarkCans {
+		width: 500rpx;
+		height: 500rpx;
+		position: absolute;
+		z-index: -1;
+	}
 	page {
 		width: 100%;
 		min-height: 100%;

@@ -243,12 +243,13 @@
 				justify-content: center;
 				align-items: center;
 				border: 1rpx solid #cc0000;
+				border-right-width: 0;
 				&:first-child{
-					border-right: 0;
 					border-top-left-radius: 10rpx;
 					border-bottom-left-radius: 10rpx;
 				}
 				&:last-child{
+					border-right-width: 1rpx;
 					border-top-right-radius: 10rpx;
 					border-bottom-right-radius: 10rpx;
 				}

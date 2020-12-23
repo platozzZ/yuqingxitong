@@ -9,8 +9,15 @@
 				</view>
 			</view> -->
 			<u-dropdown :close-on-click-mask="mask" ref="uDropdown" :borderBottom="borderBottom" height="50" @open="openDropdown">
-				<u-dropdown-item @change="change" :value="dropOption[0][dropItemIndex[0]].value" :title="dropOption[0][dropItemIndex[0]].label" :options="dropOption[0]"></u-dropdown-item>
-				<u-dropdown-item @change="change" :value="dropOption[1][dropItemIndex[1]].value" :title="dropOption[1][dropItemIndex[1]].label" :options="dropOption[1]"></u-dropdown-item>
+				<u-dropdown-item @change="change" 
+					v-for="(item,index) in dropOption"
+					:key="index"
+					:value="dropOption[index][dropItemIndex[index]].value"
+					:title="dropOption[index][dropItemIndex[index]].label" 
+					:options="dropOption[index]"
+				>
+				</u-dropdown-item>
+				<!-- <u-dropdown-item @change="change" :value="dropOption[1][dropItemIndex[1]].value" :title="dropOption[1][dropItemIndex[1]].label" :options="dropOption[1]"></u-dropdown-item> -->
 			</u-dropdown>
 			<view class="" v-for="(item,index) in trendDatas" :key="index + item.type">
 				<view class=" padding-top-sm text-center text-xl text-red bg-white">
@@ -92,6 +99,21 @@
 				dropOption: [
 					[
 						{
+							label: '按日',
+							value: 'ThisWeek',
+						},
+						{
+							label: '按周',
+							value: 'LastWeek',
+						},
+						{
+							label: '按月',
+							value: 'ThisMonth',
+						},
+						
+					],
+					[
+						{
 							label: '本周',
 							value: 'ThisWeek',
 						},
@@ -133,6 +155,21 @@
 							label: '自媒体',
 							value: '自媒体',
 						},
+					],
+					[
+						{
+							label: '全部',
+							value: 'ThisWeek',
+						},
+						{
+							label: '正面率',
+							value: 'LastWeek',
+						},
+						{
+							label: '负面率',
+							value: 'ThisMonth',
+						},
+						
 					],
 				],
 				dropOption2: [
@@ -198,8 +235,8 @@
 				inactiveColor: '#cc0000',
 				dropIndex: null,
 				dropIndex2: null,
-				dropItemIndex: [0,0],
-				dropItemIndex2: [0,0]
+				dropItemIndex: [0,0,0,0],
+				dropItemIndex2: [0,0,0,0]
 				// carData: {}
 			}
 		},

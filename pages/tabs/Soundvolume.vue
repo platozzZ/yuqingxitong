@@ -1,81 +1,66 @@
 <template>
 	<view>
 		<view class="bg-white padding-top-sm">
-			<!-- <view class=" flex justify-center">
-				<view class="main-capsule text-xs flex justify-center text-df">
-					<view class="main-capsule-item" :class="index==TabCur?' cur':''" v-for="(item,index) in tabList" :key="index" @tap="tabSelect" :data-id="index" :data-target="item.id">
-						{{item.name}}
-					</view>
-				</view>
-			</view> -->
 			<u-dropdown :close-on-click-mask="mask" ref="uDropdown" :borderBottom="borderBottom" height="50" @open="openDropdown">
-				<u-dropdown-item @change="change" :value="dropOption[0][dropItemIndex[0]].value" :title="dropOption[0][dropItemIndex[0]].label" :options="dropOption[0]"></u-dropdown-item>
+				<!-- @change="change" :value="dropOption[0][dropItemIndex[0]].value" :options="dropOption[0]" -->
+				<u-dropdown-item :title="tagIndex == null?'其他':dropOption[0][tagIndex].label">
+					<view class="slot-content">
+						<view class="item-box">
+							<view class="item" :class="index == tagIndex ? 'active' : ''" @tap="tagClick(index)" v-for="(item, index) in dropOption[0]" :key="index">
+								{{item.label}}
+							</view>
+						</view>
+						<view class="custom-container flex align-center u-m-b-50">
+							自定义时间：
+							<view class="flex-sub">
+								<view class="custom-time u-m-b-30">
+									<u-input v-model="pickerStar" :custom-style="customStyle" type="select" height="60" placeholder="请选择开始时间" :border="true" @click="handleTime('star')" />
+								</view>
+								<!-- <view class="margin-tb-sm">至</view> -->
+								<view class="custom-time">
+									<u-input v-model="pickerEnd" :custom-style="customStyle" type="select" height="60" placeholder="请选择截止时间" :border="true" @click="handleTime('end')" />
+								</view>
+							</view>
+						</view>
+						<u-button type="error" @click="handleClick">确定</u-button>
+					</view>
+					
+				</u-dropdown-item>
 				<u-dropdown-item @change="change" :value="dropOption[1][dropItemIndex[1]].value" :title="dropOption[1][dropItemIndex[1]].label" :options="dropOption[1]"></u-dropdown-item>
+				<u-dropdown-item @change="change" :value="dropOption[2][dropItemIndex[2]].value" :title="dropOption[2][dropItemIndex[2]].label" :options="dropOption[2]"></u-dropdown-item>
 			</u-dropdown>
 			<view class="" v-if="showChart">			
 				<view class="" v-for="(item,index) in volDatas" :key="index">
 					<view class="margin-top-sm text-center text-xl text-red bg-white">
 						{{item.type == 'all'? $config.brand + '各车型舆情声量':item.type + '及竞品声量比较'}}
 					</view>
-					<!-- <p-lazy-render :data="option" :time="300" :limit="50" trackByData> -->
-						<view class="qiun-charts">
-							<echarts :option="option[index]" class="charts"></echarts>
-							<!-- <view class="" slot="tip">
-								tipssssssssssssssssss
-							</view> -->
-						</view>
-					<!-- </p-lazy-render> -->
+					<view class="qiun-charts">
+						<echarts :option="option[index]" class="charts"></echarts>
+					</view>
 				</view>
 			</view>
-			<!-- <view class="margin-top-sm padding-top-sm text-center text-xl text-red bg-white">
-				广本各车型舆情声量
-			</view>
-			<view class="qiun-charts">
-				<echarts :option="option" class="charts"></echarts>
-			</view>
-			<view class="margin-top-sm padding-top-sm text-center text-xl text-red bg-white">
-				雅阁及竞品声量比较
-			</view>
-			<view class="qiun-charts">
-				<echarts :option="option" class="charts"></echarts>
-			</view>
-			<view class="margin-top-sm padding-top-sm text-center text-xl text-red bg-white">
-				凌派及竞品声量比较
-			</view>
-			<view class="qiun-charts">
-				<echarts :option="option" class="charts"></echarts>
-			</view> -->
+			
 		</view>
-		
+		<u-picker
+			v-model="pickerShow"
+			:default-time="defaultTime"
+			:start-year="starTime"
+			:end-year="endTime"
+			:params="params"
+			@confirm="pickerConfirm"
+		></u-picker>
 	</view>
 </template>
 
 <script>
 	import echarts from "@/components/echarts/echarts.vue";
-	// import volDatas from '../../utils/demo.js';
 	var that;
-	import { getVol } from '@/utils/api.js'
 	export default {
 		components: {
 			echarts
 		},
 		data() {
 			return {
-				tabList: [
-					{
-						id: "week",
-						name: '本周'
-					}, {
-						id: "month",
-						name: 'ALL'
-					}, 
-					// {
-					// 	id: "season",
-					// 	name: '本季'
-					// }
-				],
-				TabCur: 0,
-				nameCur: 'week',
 				volDatas: [],
 				showChart: false,
 				option: [],
@@ -116,35 +101,123 @@
 						},
 						
 					],
+					[
+						{
+							label: '全部',
+							value: 'ALL',
+						},
+						{
+							label: '正面',
+							value: '0',
+						},
+						{
+							label: '负面',
+							value: '1',
+						},
+						// {
+						// 	label: '其他',
+						// 	value: '2',
+						// },
+					],
 				],
 				borderBottom: false,
 				activeColor: '#fff',
 				inactiveColor: '#cc0000',
 				dropIndex: null,
-				dropItemIndex: [0,0]
+				dropItemIndex: [0,0,0],
+				tagIndex: 0,
+				params: {
+					year: true,
+					month: true,
+					day: true,
+					hour: true,
+					minute: true,
+					second: true
+				},
+				pickerShow: false,
+				defaultTime: '',
+				pickerType: '',
+				pickerStar: '',
+				pickerEnd: '',
+				customStyle: {
+					fontSize: '26rpx'
+				},
+				queryForm: {
+					type: 'GetVolume',
+					Period: 'ThisWeek',
+					Para: 'ALL',
+					DiaoXing: 'ALL',
+					BeginDate: '',
+					EndDate: '',
+				},
 				// carData: {}
 			}
 		},
 		mounted() {
-			that = this;
-			let data = {
-				Period: 'ThisWeek',
-				Para: 'ALL',
-			}
-			that.getVol(data)
+			that = this
+			that.getVol(that.queryForm)
 			// that.carData = that.$config
 		},
 		methods: {
-			tabSelect(e) {
-				console.log(e.currentTarget.dataset)
-				let target = e.currentTarget.dataset
-				// console.log(this.scrollLeftData)
-				that.TabCur = target.id;
-				// that.nameCur = target.target
-				let data = {
-					period: target.target,
+			tagClick(index){
+				that.tagIndex = index
+				that.pickerStar = ''
+				that.pickerEnd = ''
+			},
+			handleTime(e){
+				let time = that.$u.timeFormat(new Date().getTime(), 'yyyy-mm-dd')
+				// console.log(time)
+				if(e == 'star'){
+					if(!that.pickerStar){
+						that.defaultTime = time + ' 00:00:00'
+					} else {
+						that.defaultTime = that.pickerStar
+					}
+				} else {
+					if(!that.pickerEnd){
+						that.defaultTime = time + ' 23:59:59'
+					} else {
+						that.defaultTime = that.pickerEnd 
+					}
 				}
-				that.getVol(data)
+					console.log(that.defaultTime);
+				that.pickerShow = true
+				that.pickerType = e
+			},
+			pickerConfirm(e){
+				that.tagIndex = null
+				let time = e.year + '-' + e.month + '-' + e.day + ' ' + e.hour + ':' + e.minute + ':' + e.second
+				if(that.pickerType == 'star'){
+					if(!!that.pickerEnd && time > that.pickerEnd){
+						that.showToast('开始时间不能大于结束时间')
+						return
+					}
+					that.pickerStar = time
+					return
+				}
+				if(!!that.pickerStar && time < that.pickerStar){
+					that.showToast('结束时间不能小于开始时间')
+					return
+				}
+				that.pickerEnd = time
+			},
+			handleClick(){
+				// that.queryForm.Para = that.dropOption[1][that.dropItemIndex[1]].value
+				// that.queryForm.DiaoXing = that.dropOption[2][that.dropItemIndex[2]].value
+				if(!that.pickerStar && !that.pickerEnd){
+					that.queryForm.type = 'GetVolume'
+					that.queryForm.Period = that.dropOption[0][that.tagIndex].value
+					that.queryForm.BeginDate = ''
+					that.queryForm.EndDate = ''
+				} else {
+					that.queryForm.type = 'GetVolumeS'
+					that.queryForm.Period = ''
+					that.queryForm.BeginDate = that.pickerStar
+					that.queryForm.EndDate = that.pickerEnd
+				}
+				console.log(that.queryForm)
+				that.getVol(that.queryForm)
+				that.closeDropdown()
 			},
 			change(value,index) {
 				console.log(value);
@@ -152,15 +225,26 @@
 				// that.dropItemIndex = that.dropItemIndex
 				that.$set(that.dropItemIndex,that.dropIndex,index)
 				console.log(that.dropItemIndex);
-				// let data
-				// if(that.dropIndex == 0){
-					
-				// }
-				let data = {
-					Period: that.dropOption[0][that.dropItemIndex[0]].value,
-					Para: that.dropOption[1][that.dropItemIndex[1]].value
+				that.queryForm.Para = that.dropOption[1][that.dropItemIndex[1]].value
+				that.queryForm.DiaoXing = that.dropOption[2][that.dropItemIndex[2]].value
+				if(!that.pickerStar && !that.pickerEnd){
+					that.queryForm.type = 'GetVolume'
+					that.queryForm.Period = that.dropOption[0][that.tagIndex].value
+					that.queryForm.BeginDate = ''
+					that.queryForm.EndDate = ''
+				} else {
+					that.queryForm.type = 'GetVolumeS'
+					that.queryForm.Period = ''
+					that.queryForm.BeginDate = that.pickerStar
+					that.queryForm.EndDate = that.pickerEnd
 				}
-				that.getVol(data)
+				console.log(that.queryForm)
+				that.getVol(that.queryForm)
+				// let data = {
+				// 	Period: that.dropOption[0][that.dropItemIndex[0]].value,
+				// 	Para: that.dropOption[1][that.dropItemIndex[1]].value
+				// }
+				// that.getVol(data)
 			},
 			closeDropdown() {
 				this.$refs.uDropdown.close();
@@ -170,26 +254,17 @@
 				that.dropIndex = index
 			},
 			getVol(data){
-				uni.showLoading()
+				console.log('getVol-data',data)
 				that.showChart = false
-				getVol(data).then(res => {
-					console.log(data)
-					console.log('getVol',res)
-					if(res.data.successCode == '1'){
-						that.showChart = true
-						that.volDatas = res.data.data
-						that.option = new Array(res.data.data.length)
-						
-						that.options(res.data.data)
-					} else {
-						that.showToast(res.data.msg) 
-					}
-					uni.hideLoading()
+				that.$u.post('/ashx/Volume/Volume.ashx',data).then(res => {
+					console.log('getVol',res);
+					that.showChart = true
+					that.volDatas = res
+					that.option = new Array(res.length)
+					that.options(res)
 				}).catch(err => {
-					uni.hideLoading()
-					console.log(err)
-					that.showToast(err.data.msg) 
-				})
+					console.log('getTrend-catch', err);
+				});
 			},
 			options(optionData){
 				// let optionData = that.volDatas
@@ -226,14 +301,7 @@
 				console.log(that.option);
 			},
 			setOption(legendData,xData,seriesData){
-				// console.log(legendData)
-				// console.log(xData)
-				console.log(seriesData)
 				let option = {
-					// #f37b1d;#fbbd08;#8dc63f; #39b54a;#1cbbb4;#0081ff; #6739b6;#9c26b0;#e03997; #a5673f;#8799a3
-
-					// #008ad2       #6b5fc2      #e67b60     #08b19c     #1c74b3
-					// color: ['#f37b1d','#8dc63f','#6739b6','#1cbbb4','#e03997','#fbbd08'],
 					color: ['#0070c0','#c300d9','#c00000','#51d874','#ed6663','#806d9e','#45046a','#6a3906','#001977','#007130'],
 					backgroundColor: '#fff',
 					tooltip: {
@@ -290,43 +358,6 @@
 						}
 					}],
 					series: seriesData
-					// series: [{
-					// 		name: "APP",
-					// 		type: "bar",
-					// 		stack: "声量",
-					// 		data: seriesData[0]
-					// 	},
-					// 	{
-					// 		name: "论坛",
-					// 		type: "bar",
-					// 		stack: "声量",
-					// 		data: seriesData[1]
-					// 	},
-					// 	{
-					// 		name: "平面",
-					// 		type: "bar",
-					// 		stack: "声量",
-					// 		data: seriesData[2]
-					// 	},
-					// 	{
-					// 		name: "网络",
-					// 		type: "bar",
-					// 		stack: "声量",
-					// 		data: seriesData[3]
-					// 	},
-					// 	{
-					// 		name: "微博",
-					// 		type: "bar",
-					// 		stack: "声量",
-					// 		data: seriesData[4]
-					// 	},
-					// 	{
-					// 		name: "微信",
-					// 		type: "bar",
-					// 		stack: "声量",
-					// 		data: seriesData[5]
-					// 	}
-					// ]
 				}
 				// this.option = option
 				return option
@@ -367,4 +398,37 @@
 		flex-basis: auto;
 		padding: 0 30rpx;
 	}
+</style>
+<style lang="scss" scoped>
+$color-primary: #cc0000;
+.slot-content {
+	background-color: #FFFFFF;
+	padding: 24rpx;
+	
+	.item-box {
+		margin-bottom: 30rpx;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		.item {
+			border: 1px solid $color-primary;
+			color: $color-primary;
+			padding: 4rpx 30rpx;
+			border-radius: 8rpx;
+			margin-top: 30rpx;
+			font-size: 26rpx;
+		}
+		
+		.active {
+			color: #FFFFFF;
+			background-color: $color-primary;
+		}
+	}
+	.custom-container{
+		font-size: 26rpx;
+		.custom-time{
+			flex: 1;
+		}
+	}
+}
 </style>

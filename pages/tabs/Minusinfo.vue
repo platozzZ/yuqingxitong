@@ -11,10 +11,24 @@
 				<view class="cu-item" :class="index==TabCur?' cur':''" v-if="index>=5" v-for="(item,index) in tabList" :key="index" @tap="tabSelect" :data-id="index" :data-target="item.type">{{item.name}}</view>
 			</view> -->
 		</view>
-		<view class="cu-bar search">
+		<!-- <view class="padding-bottom-sm padding-top-xs bg-white">
+			<u-dropdown :close-on-click-mask="mask" ref="uDropdown" :borderBottom="borderBottom" height="50" @open="openDropdown">
+				<u-dropdown-item @change="change" :value="dropOption[0][dropItemIndex[0]].value" :title="dropOption[0][dropItemIndex[0]].label" :options="dropOption[0]"></u-dropdown-item>
+				<u-dropdown-item @change="change" :value="dropOption[1][dropItemIndex[1]].value" :title="dropOption[1][dropItemIndex[1]].label" :options="dropOption[1]"></u-dropdown-item>
+			</u-dropdown>
+		</view> -->
+		<view class="cu-bar search padding-tb-xs">
+			<view class="flex align-center">
+				<!-- <u-input v-model="selectTitle[index]" :custom-style="customStyle" input-align="center" type="select" @click="handleClick(index)" v-for="(item,index) in dropOption" :key="index" /> -->
+				<u-button type="error" :custom-style="customStyle" size="mini" v-for="(item,index) in dropOption" :key="index" @click="handleClick(index)">
+					{{selectTitle[index]}}
+					<u-icon name="arrow-down-fill" :custom-style="customStyleIcon" color="#fff"></u-icon>
+				</u-button>
+				<!-- <u-button type="error">ALL</u-button> -->
+			</view>
 			<view class="search-form round">
 				<text class="cuIcon-search"></text>
-				<input type="text" placeholder="请输入您想要的关键词搜索吧" confirm-type="search" v-model="searchData"></input>
+				<input type="text" placeholder="请输入关键词" confirm-type="search" v-model="searchData"></input>
 			</view>
 			<view class="action">
 				<button class="cu-btn shadow-blur round bg-white" @tap="searchArticle">搜索</button>
@@ -77,6 +91,7 @@
 			<!-- <view class="cu-load" :class="!isLoad?'loading':'over'"></view> -->
 			<uni-load-more :status="status"></uni-load-more>
 		</view>
+		<u-select v-model="selectShow" mode="single-column" :list="dropOption[dropIndex]" @confirm="confirm"></u-select>
 	</view>
 </template>
 
@@ -87,6 +102,8 @@
 	export default {
 		data() {
 			return {
+				selectShow: false,
+				selectTitle: ['默认排序','ALL'],
 				tabList: this.$config.cars,
 				TabCur: 0,
 				infoList: [],
@@ -99,7 +116,52 @@
 				totalPage: null,
 				status: 'more',
 				// isSearch: false,
-				ProjectName: 'Bad'
+				ProjectName: 'Bad',
+				mask: true,
+				dropOption: [
+					[
+						{
+							label: '默认排序',
+							value: 'ThisWeek',
+						},
+						{
+							label: '按阅读量排序',
+							value: 'LastWeek',
+						},
+						{
+							label: '按评论量排序',
+							value: 'ThisMonth',
+						}
+					],
+					[
+						{
+							label: 'ALL',
+							value: 'ALL',
+						},
+						{
+							label: 'PGC',
+							value: 'PGC',
+						},
+						{
+							label: 'UGC',
+							value: 'UGC',
+						},
+						
+					],
+				],
+				borderBottom: false,
+				activeColor: '#fff',
+				inactiveColor: '#cc0000',
+				dropIndex: null,
+				dropItemIndex: [0,0],
+				customStyle: {
+					// width: 'a',
+					color: '#fff',
+					marginLeft: '30rpx'
+				},
+				customStyleIcon: {
+					marginLeft: '6rpx'
+				}
 			}
 		},
 		props: {
@@ -123,6 +185,43 @@
 			that.getArticle()
 		},
 		methods: {
+			handleClick(index){
+				that.dropIndex = index
+				that.selectShow = true
+			},
+			confirm(e){
+				console.log(e)
+				that.selectTitle[that.dropIndex] = e[0].label
+			},
+			change(value,index) {
+				console.log(value);
+				console.log(index);
+				// that.dropItemIndex = that.dropItemIndex
+				that.$set(that.dropItemIndex,that.dropIndex,index)
+				console.log(that.dropItemIndex);
+				// that.queryForm.Para = that.dropOption[1][that.dropItemIndex[1]].value
+				// that.queryForm.DiaoXing = that.dropOption[2][that.dropItemIndex[2]].value
+				// if(!that.pickerStar && !that.pickerEnd){
+				// 	that.queryForm.type = 'GetTrend'
+				// 	that.queryForm.Period = that.dropOption[0][that.tagIndex].value
+				// 	that.queryForm.BeginDate = ''
+				// 	that.queryForm.EndDate = ''
+				// } else {
+				// 	that.queryForm.type = 'GetTrendS'
+				// 	that.queryForm.Period = ''
+				// 	that.queryForm.BeginDate = that.pickerStar
+				// 	that.queryForm.EndDate = that.pickerEnd
+				// }
+				// console.log(that.queryForm)
+				// that.getTrend(that.queryForm)
+			},
+			closeDropdown() {
+				this.$refs.uDropdown.close();
+			},
+			openDropdown(index){
+				console.log(index);
+				that.dropIndex = index
+			},
 			tabSelect(e) {
 				console.log(e.currentTarget.dataset)
 				let target = e.currentTarget.dataset
@@ -335,5 +434,14 @@
 	.cu-list.menu>.cu-item{
 		padding: 0 0 0 30upx;
 		min-height: 60upx;
+	}
+	/deep/ .u-dropdown__menu{
+		justify-content: center;
+	}
+	/deep/ .u-dropdown__menu__item{
+		flex-grow: 0;
+		flex-basis: auto;
+		padding: 0 30rpx;
+		width: 200rpx;
 	}
 </style>
